@@ -1,0 +1,8 @@
+.vs
+build
+bundle
+node_modules
+serverRoot
+src/definitions
+target
+*.user
