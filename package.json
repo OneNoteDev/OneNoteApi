@@ -33,5 +33,6 @@
     "tslint": "^3.9.0",
     "typescript": "^1.7.3",
     "vinyl-source-stream": "^1.1.0"
-  }
+  },
+  "files": ["README.*", "./target/oneNoteApi.d.ts", "./target/oneNoteApi.js"]
 }
