@@ -4,5 +4,6 @@ bundle
 node_modules
 serverRoot
 src/definitions
-target
+target/modules
+target/tests
 *.user
