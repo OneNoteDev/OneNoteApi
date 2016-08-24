@@ -99,13 +99,6 @@ gulp.task("bundleApi", function () {
 		.pipe(gulp.dest(PATHS.BUNDLEROOT));
 });
 
-gulp.task("bundleSampleTsModule", function () {
-	return browserify(PATHS.BUILDROOT + "sample/typescript_module/sample.js")
-		.bundle()
-		.pipe(source("sample.js"))
-		.pipe(gulp.dest(PATHS.BUNDLEROOT));
-});
-
 gulp.task("bundleTests", function () {
 	return globby.sync(["**/*.js"], { cwd: PATHS.BUILDROOT + "tests" }).map(function (filePath) {
 		return browserify(PATHS.BUILDROOT + "tests/" + filePath, { debug: true })
@@ -118,7 +111,6 @@ gulp.task("bundleTests", function () {
 gulp.task("bundle", function (callback) {
 	runSequence(
 		"bundleApi",
-		"bundleSampleTsModule",
 		"bundleTests",
 		callback);
 });
