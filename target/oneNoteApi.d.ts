@@ -200,7 +200,3 @@ declare namespace OneNoteApi {
 		public static getDepthOfParent(parent: SectionParent): number;
 	}
 }
-
-declare module "oneNoteApi" {
-	export = OneNoteApi;
-}
