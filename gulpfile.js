@@ -4,7 +4,6 @@ var require;
 
 var browserify = require("browserify");
 var del = require("del");
-var forever = require("forever");
 var fs = require("file-system");
 var globby = require("globby");
 var gulp = require("gulp");
@@ -78,7 +77,6 @@ gulp.task("compile", function() {
 ////////////////////////////////////////
 // TSLINT
 ////////////////////////////////////////
-//The actual task to run
 gulp.task("tslint", function () {
 	var tsErrorReport = tslint.report("prose", {
 		emitError: false,
@@ -189,17 +187,6 @@ gulp.task("export", function (callback) {
 ////////////////////////////////////////
 gulp.task("runTests", function () {
 	return qunit(PATHS.TARGETROOT + "tests/index.html");
-});
-
-////////////////////////////////////////
-// SERVER
-////////////////////////////////////////
-gulp.task("start", function () {
-	forever.startDaemon("server.js");
-});
-
-gulp.task("stop", function () {
-	forever.stopAll();
 });
 
 ////////////////////////////////////////
