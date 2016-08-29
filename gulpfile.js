@@ -5,16 +5,20 @@ var require;
 var browserify = require("browserify");
 var del = require("del");
 var forever = require("forever");
+var fs = require("file-system");
 var globby = require("globby");
 var gulp = require("gulp");
+var header = require("gulp-header");
 var merge = require("merge-stream");
 var plumber = require("gulp-plumber");
 var qunit = require("node-qunit-phantomjs");
+var rename = require("gulp-rename");
 var runSequence = require("run-sequence");
 var source = require("vinyl-source-stream");
 var ts = require("gulp-typescript");
 var tslint = require("gulp-tslint");
 var tsd = require("gulp-tsd");
+var uglify = require("gulp-uglify");
 
 var PATHS = {
 	SRCROOT: "src/",
@@ -92,10 +96,19 @@ gulp.task("tslint", function () {
 ////////////////////////////////////////
 // BUNDLE
 ////////////////////////////////////////
+function getLicense() {
+	return [
+		"/*",
+		fs.readFileSync("LICENSE", "utf8"),
+		"*/"
+	].join("\n");
+}
+
 gulp.task("bundleApi", function () {
 	return browserify(PATHS.BUILDROOT + "scripts/oneNoteApi.js", { standalone: "OneNoteApi" })
 		.bundle()
 		.pipe(source("oneNoteApi.js"))
+		.pipe(header(getLicense()))
 		.pipe(gulp.dest(PATHS.BUNDLEROOT));
 });
 
@@ -115,6 +128,21 @@ gulp.task("bundle", function (callback) {
 		callback);
 });
 
+////////////////////////////////////////
+// MINIFY BUNDLED
+////////////////////////////////////////
+gulp.task("minifyBundled", function (callback) {
+	var targetDir = PATHS.BUNDLEROOT;
+
+	var minifyTask = gulp.src(PATHS.BUNDLEROOT + "oneNoteApi.js")
+		.pipe(uglify({
+			preserveComments: "license"
+		}))
+		.pipe(rename({ suffix: ".min" }))
+		.pipe(gulp.dest(targetDir));
+
+	return merge(minifyTask);
+});
 
 ////////////////////////////////////////
 // EXPORT
@@ -124,10 +152,10 @@ gulp.task("exportApi", function () {
 		.pipe(gulp.dest(PATHS.TARGETROOT + "modules/"));
 
 	var copyTask = gulp.src([
-			PATHS.BUNDLEROOT + "oneNoteApi.js",
-			PATHS.SRCROOT + "oneNoteApi.d.ts"
-	])
-		.pipe(gulp.dest(PATHS.TARGETROOT));
+		PATHS.BUNDLEROOT + "oneNoteApi.js",
+		PATHS.BUNDLEROOT + "oneNoteApi.min.js",
+		PATHS.SRCROOT + "oneNoteApi.d.ts"
+	]).pipe(gulp.dest(PATHS.TARGETROOT));
 
 	return merge(modulesTask, copyTask);
 });
@@ -136,10 +164,9 @@ gulp.task("exportTests", function () {
 	var targetDir = PATHS.TARGETROOT + "tests/";
 
 	var libsTask = gulp.src([
-			"node_modules/qunitjs/qunit/qunit.+(css|js)",
-			PATHS.SRCROOT + "tests/bind_polyfill.js"
-	])
-		.pipe(gulp.dest(targetDir + "libs"));
+		"node_modules/qunitjs/qunit/qunit.+(css|js)",
+		PATHS.SRCROOT + "tests/bind_polyfill.js"
+	]).pipe(gulp.dest(targetDir + "libs"));
 
 	var testsTask = gulp.src(PATHS.BUNDLEROOT + "tests/**", { base: PATHS.BUNDLEROOT + "tests/" })
 		.pipe(gulp.dest(targetDir));
@@ -150,39 +177,10 @@ gulp.task("exportTests", function () {
 	return merge(libsTask, testsTask, indexTask);
 });
 
-gulp.task("exportSampleJs", function () {
-	return gulp.src([
-			PATHS.BUNDLEROOT + "oneNoteApi.js",
-			PATHS.SRCROOT + "sample/javascript/index.html",
-			PATHS.SRCROOT + "sample/javascript/sample.js"
-	])
-		.pipe(gulp.dest(PATHS.WEBROOT));
-});
-
-gulp.task("exportSampleTs", function () {
-	return gulp.src([
-			PATHS.BUNDLEROOT + "oneNoteApi.js",
-			PATHS.SRCROOT + "sample/typescript/index.html",
-			PATHS.BUILDROOT + "sample/typescript/sample.js"
-	])
-		.pipe(gulp.dest(PATHS.WEBROOT + "typescript/"));
-});
-
-gulp.task("exportSampleTsModule", function () {
-	return gulp.src([
-			PATHS.SRCROOT + "sample/typescript_module/index.html",
-			PATHS.BUNDLEROOT + "sample.js"
-	])
-		.pipe(gulp.dest(PATHS.WEBROOT + "typescript_module/"));
-});
-
 gulp.task("export", function (callback) {
 	runSequence(
 		"exportApi",
 		"exportTests",
-		"exportSampleJs",
-		"exportSampleTs",
-		"exportSampleTsModule",
 		callback);
 });
 
@@ -211,6 +209,7 @@ gulp.task("build", function (callback) {
 	runSequence(
 		"compile",
 		"bundle",
+		"minifyBundled",
 		"export",
 		"tslint",
 		"runTests",
