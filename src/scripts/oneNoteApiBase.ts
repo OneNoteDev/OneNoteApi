@@ -27,7 +27,7 @@ export class OneNoteApiBase {
 		this.headers = headers;
 	}
 
-	public requestPromise(partialUrl: string, data?: XHRData, contentType?: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
+	public requestPromise(partialUrl: string, data?: XHRData, contentType?: string, verb?: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
 		let fullUrl = this.generateFullUrl(partialUrl);
 
 		if (contentType === null) {
@@ -35,7 +35,7 @@ export class OneNoteApiBase {
 		}
 
 		return new Promise(((resolve: (responsePackage: ResponsePackage<any>) => void, reject: (error: OneNoteApi.RequestError) => void) => {
-			this.makeRequest(fullUrl, data, contentType).then((responsePackage: ResponsePackage<any>) => {
+			this.makeRequest(fullUrl, data, contentType, verb).then((responsePackage: ResponsePackage<any>) => {
 				resolve(responsePackage);
 			}, (error: OneNoteApi.RequestError) => {
 				reject(error);
@@ -48,11 +48,11 @@ export class OneNoteApiBase {
 		return apiRootUrl + partialUrl;
 	}
 
-	private makeRequest(url: string, data?: XHRData, contentType?: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
+	private makeRequest(url: string, data?: XHRData, contentType?: string, verb?: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
 		return new Promise((resolve: (responsePackage: ResponsePackage<any>) => void, reject: (error: OneNoteApi.RequestError) => void) => {
 			let request = new XMLHttpRequest();
 
-			let type: string = data ? "POST" : "GET";
+			let type: string = verb ? verb : data ? "POST" : "GET";
 			request.open(type, url);
 
 			request.timeout = this.timeout;

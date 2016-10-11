@@ -291,6 +291,14 @@ var OneNoteApi = (function (_super) {
         return this.requestPromise(url, form.asBlob(), form.getContentType());
     };
     /**
+     * UpdatePage
+     */
+    OneNoteApi.prototype.updatePage = function (pageId, revisions) {
+        var pagePath = "/pages/" + pageId;
+        var url = pagePath + "/content";
+        return this.requestPromise(url, revisions, "application/json", "PATCH");
+    };
+    /**
     * CreateSection
     */
     OneNoteApi.prototype.createSection = function (notebookId, name) {
@@ -387,14 +395,14 @@ var OneNoteApiBase = (function () {
         this.timeout = timeout;
         this.headers = headers;
     }
-    OneNoteApiBase.prototype.requestPromise = function (partialUrl, data, contentType) {
+    OneNoteApiBase.prototype.requestPromise = function (partialUrl, data, contentType, verb) {
         var _this = this;
         var fullUrl = this.generateFullUrl(partialUrl);
         if (contentType === null) {
             contentType = "application/json";
         }
         return new Promise((function (resolve, reject) {
-            _this.makeRequest(fullUrl, data, contentType).then(function (responsePackage) {
+            _this.makeRequest(fullUrl, data, contentType, verb).then(function (responsePackage) {
                 resolve(responsePackage);
             }, function (error) {
                 reject(error);
@@ -405,11 +413,11 @@ var OneNoteApiBase = (function () {
         var apiRootUrl = this.useBetaApi ? "https://www.onenote.com/api/beta/me/notes" : "https://www.onenote.com/api/v1.0/me/notes";
         return apiRootUrl + partialUrl;
     };
-    OneNoteApiBase.prototype.makeRequest = function (url, data, contentType) {
+    OneNoteApiBase.prototype.makeRequest = function (url, data, contentType, verb) {
         var _this = this;
         return new Promise(function (resolve, reject) {
             var request = new XMLHttpRequest();
-            var type = data ? "POST" : "GET";
+            var type = verb ? verb : data ? "POST" : "GET";
             request.open(type, url);
             request.timeout = _this.timeout;
             request.onload = function () {

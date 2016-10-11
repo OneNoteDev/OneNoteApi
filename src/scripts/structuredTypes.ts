@@ -25,6 +25,12 @@ interface PageParent {
 	pages: Page[];
 }
 
+export interface Revision {
+	target: string;
+	action: string;
+	position?: string;
+}
+
 export interface Notebook extends Identifyable, HistoryTime, HistoryBy, SectionAndSectionGroupParent {
 	name: string;
 	isDefault: boolean;
