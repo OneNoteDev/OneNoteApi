@@ -291,6 +291,13 @@ var OneNoteApi = (function (_super) {
         return this.requestPromise(url, form.asBlob(), form.getContentType());
     };
     /**
+     * GetPage
+     */
+    OneNoteApi.prototype.getPage = function (pageId) {
+        var pagePath = "/pages/" + pageId;
+        return this.requestPromise(pagePath);
+    };
+    /**
      * UpdatePage
      */
     OneNoteApi.prototype.updatePage = function (pageId, revisions) {
@@ -398,6 +405,7 @@ var OneNoteApiBase = (function () {
     OneNoteApiBase.prototype.requestPromise = function (partialUrl, data, contentType, verb) {
         var _this = this;
         var fullUrl = this.generateFullUrl(partialUrl);
+        console.log("partialUrl: " + partialUrl + " , fullUrl: " + fullUrl);
         if (contentType === null) {
             contentType = "application/json";
         }

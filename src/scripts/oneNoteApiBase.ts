@@ -29,6 +29,7 @@ export class OneNoteApiBase {
 
 	public requestPromise(partialUrl: string, data?: XHRData, contentType?: string, verb?: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
 		let fullUrl = this.generateFullUrl(partialUrl);
+		console.log("partialUrl: " + partialUrl + " , fullUrl: " + fullUrl);
 
 		if (contentType === null) {
 			contentType = "application/json";

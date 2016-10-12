@@ -85,6 +85,11 @@ declare namespace OneNoteApi {
 		createPage(page: OneNotePage, sectionId?: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError>;
 
 		/**
+		 * GetPage
+		 */
+		getPage(pageId: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError>;
+
+		/**
 		 * UpdatePage
 		 */
 		updatePage(pageId: string, revisions: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError>;
