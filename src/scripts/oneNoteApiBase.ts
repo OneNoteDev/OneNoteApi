@@ -60,9 +60,10 @@ export class OneNoteApiBase {
 
 			request.onload = () => {
 				// TODO: more status code checking
-				if (request.status === 200 || request.status === 201) {
+				if (request.status === 200 || request.status === 201 || request.status === 204) {
 					try {
-						let parsedResponse = JSON.parse(request.response);
+						let response = request.response ? request.response : "{}";
+						let parsedResponse = JSON.parse(response);
 						let responsePackage: ResponsePackage<any> = { parsedResponse: parsedResponse, request: request };
 						resolve(responsePackage);
 					} catch (e) {

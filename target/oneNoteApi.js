@@ -430,9 +430,10 @@ var OneNoteApiBase = (function () {
             request.timeout = _this.timeout;
             request.onload = function () {
                 // TODO: more status code checking
-                if (request.status === 200 || request.status === 201) {
+                if (request.status === 200 || request.status === 201 || request.status === 204) {
                     try {
-                        var parsedResponse = JSON.parse(request.response);
+                        var response = request.response ? request.response : "{}";
+                        var parsedResponse = JSON.parse(response);
                         var responsePackage = { parsedResponse: parsedResponse, request: request };
                         resolve(responsePackage);
                     }

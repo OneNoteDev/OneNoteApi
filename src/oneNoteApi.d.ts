@@ -12,6 +12,12 @@ declare namespace OneNoteApi {
 		request: XMLHttpRequest
 	}
 
+	export interface Revision {
+		target: string;
+		action: string;
+		content: string;
+	}
+
 	/**
 	 * Base communication layer for talking to the OneNote APIs.
 	 */
