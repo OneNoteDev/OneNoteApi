@@ -405,7 +405,6 @@ var OneNoteApiBase = (function () {
     OneNoteApiBase.prototype.requestPromise = function (partialUrl, data, contentType, verb) {
         var _this = this;
         var fullUrl = this.generateFullUrl(partialUrl);
-        console.log("partialUrl: " + partialUrl + " , fullUrl: " + fullUrl);
         if (contentType === null) {
             contentType = "application/json";
         }
