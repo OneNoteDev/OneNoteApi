@@ -163,6 +163,8 @@ gulp.task("exportTests", function () {
 
 	var libsTask = gulp.src([
 		"node_modules/qunitjs/qunit/qunit.+(css|js)",
+		"node_modules/sinon/pkg/sinon.js",
+		"node_modules/sinon-qunit/lib/sinon-qunit.js",
 		PATHS.SRCROOT + "tests/bind_polyfill.js"
 	]).pipe(gulp.dest(targetDir + "libs"));
 
