@@ -12,13 +12,6 @@ declare namespace OneNoteApi {
 		request: XMLHttpRequest
 	}
 
-	export interface Revision {
-		target: string;
-		action: string;
-		content: string;
-		position?: string;
-	}
-
 	/**
 	 * Base communication layer for talking to the OneNote APIs.
 	 */
@@ -99,7 +92,7 @@ declare namespace OneNoteApi {
 		/**
 		 * UpdatePage
 		 */
-		updatePage(pageId: string, revisions: OneNoteApi.Revision[]): Promise<ResponsePackage<any> | OneNoteApi.RequestError>;
+		updatePage(pageId: string, revisions: Revision[]): Promise<ResponsePackage<any> | OneNoteApi.RequestError>;
 
 		/**
 		 * CreateSection
@@ -152,6 +145,13 @@ declare namespace OneNoteApi {
 	interface PageParent {
 		pagesUrl: string;
 		pages: Page[];
+	}
+
+	export interface Revision {
+		target: string;
+		action: string;
+		content: string;
+		position?: string;
 	}
 
 	export interface Notebook extends Identifyable, HistoryTime, HistoryBy, SectionAndSectionGroupParent {

@@ -28,6 +28,7 @@ interface PageParent {
 export interface Revision {
 	target: string;
 	action: string;
+	content: string;
 	position?: string;
 }
 

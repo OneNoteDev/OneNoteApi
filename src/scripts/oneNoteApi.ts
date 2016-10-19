@@ -41,7 +41,7 @@ export class OneNoteApi extends OneNoteApiBase {
 	/**
 	 * UpdatePage
 	 */
-	public updatePage(pageId: string, revisions: OneNoteApi.Revision[]): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
+	public updatePage(pageId: string, revisions: Revision[]): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
 		let pagePath = "/pages/" + pageId;
 		let url = pagePath + "/content";
 
