@@ -41,11 +41,11 @@ export class OneNoteApi extends OneNoteApiBase {
 	/**
 	 * UpdatePage
 	 */
-	public updatePage(pageId: string, revisions: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
+	public updatePage(pageId: string, revisions: OneNoteApi.Revision[]): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
 		let pagePath = "/pages/" + pageId;
 		let url = pagePath + "/content";
 
-		return this.requestPromise(url, revisions, "application/json", "PATCH");
+		return this.requestPromise(url, JSON.stringify(revisions), "application/json", "PATCH");
 	}
 
 	/**
