@@ -16,6 +16,7 @@ declare namespace OneNoteApi {
 		target: string;
 		action: string;
 		content: string;
+		position?: string;
 	}
 
 	/**
