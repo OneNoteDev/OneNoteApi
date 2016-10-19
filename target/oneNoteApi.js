@@ -303,7 +303,7 @@ var OneNoteApi = (function (_super) {
     OneNoteApi.prototype.updatePage = function (pageId, revisions) {
         var pagePath = "/pages/" + pageId;
         var url = pagePath + "/content";
-        return this.requestPromise(url, revisions, "application/json", "PATCH");
+        return this.requestPromise(url, JSON.stringify(revisions), "application/json", "PATCH");
     };
     /**
     * CreateSection

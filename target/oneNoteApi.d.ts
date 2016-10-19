@@ -16,6 +16,7 @@ declare namespace OneNoteApi {
 		target: string;
 		action: string;
 		content: string;
+		position?: string;
 	}
 
 	/**
@@ -98,7 +99,7 @@ declare namespace OneNoteApi {
 		/**
 		 * UpdatePage
 		 */
-		updatePage(pageId: string, revisions: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError>;
+		updatePage(pageId: string, revisions: OneNoteApi.Revision[]): Promise<ResponsePackage<any> | OneNoteApi.RequestError>;
 
 		/**
 		 * CreateSection
