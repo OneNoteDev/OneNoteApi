@@ -25,17 +25,19 @@ interface PageParent {
 	pages: Page[];
 }
 
+// These ENUMs are not capitalized because
+// the API documentation has them as all lowercase
 export module Revision {
 	export enum Action {
-		Append,
-		Insert,
-		Prepend,
-		Replace,
+		append,
+		insert,
+		prepend,
+		replace,
 	}
 
 	export enum Position {
-		After,
-		Before
+		after,
+		before
 	}
 }
 
