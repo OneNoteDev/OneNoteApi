@@ -25,11 +25,25 @@ interface PageParent {
 	pages: Page[];
 }
 
+export module Revision {
+	export enum Action {
+		Append,
+		Insert,
+		Prepend,
+		Replace,
+	}
+
+	export enum Position {
+		After,
+		Before
+	}
+}
+
 export interface Revision {
 	target: string;
-	action: string;
+	action: Revision.Action;
 	content: string;
-	position?: string;
+	position?: Revision.Position;
 }
 
 export interface Notebook extends Identifyable, HistoryTime, HistoryBy, SectionAndSectionGroupParent {

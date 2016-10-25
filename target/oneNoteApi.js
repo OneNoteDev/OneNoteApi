@@ -402,14 +402,14 @@ var OneNoteApiBase = (function () {
         this.timeout = timeout;
         this.headers = headers;
     }
-    OneNoteApiBase.prototype.requestPromise = function (partialUrl, data, contentType, verb) {
+    OneNoteApiBase.prototype.requestPromise = function (partialUrl, data, contentType, httpMethod) {
         var _this = this;
         var fullUrl = this.generateFullUrl(partialUrl);
         if (contentType === null) {
             contentType = "application/json";
         }
         return new Promise((function (resolve, reject) {
-            _this.makeRequest(fullUrl, data, contentType, verb).then(function (responsePackage) {
+            _this.makeRequest(fullUrl, data, contentType, httpMethod).then(function (responsePackage) {
                 resolve(responsePackage);
             }, function (error) {
                 reject(error);
@@ -420,11 +420,17 @@ var OneNoteApiBase = (function () {
         var apiRootUrl = this.useBetaApi ? "https://www.onenote.com/api/beta/me/notes" : "https://www.onenote.com/api/v1.0/me/notes";
         return apiRootUrl + partialUrl;
     };
-    OneNoteApiBase.prototype.makeRequest = function (url, data, contentType, verb) {
+    OneNoteApiBase.prototype.makeRequest = function (url, data, contentType, httpMethod) {
         var _this = this;
         return new Promise(function (resolve, reject) {
             var request = new XMLHttpRequest();
-            var type = verb ? verb : data ? "POST" : "GET";
+            var type;
+            if (!!httpMethod) {
+                type = httpMethod;
+            }
+            else {
+                type = data ? "POST" : "GET";
+            }
             request.open(type, url);
             request.timeout = _this.timeout;
             request.onload = function () {
