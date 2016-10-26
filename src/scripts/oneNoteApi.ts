@@ -38,6 +38,11 @@ export class OneNoteApi extends OneNoteApiBase {
 		return this.requestPromise(pagePath);
 	}
 
+	public getPageContent(pageId: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
+		let pagePath = "/pages/" + pageId + "/content";
+		return this.requestPromise(pagePath);
+	}
+
 	/**
 	 * UpdatePage
 	 */

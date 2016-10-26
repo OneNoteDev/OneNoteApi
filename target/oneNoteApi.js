@@ -297,6 +297,10 @@ var OneNoteApi = (function (_super) {
         var pagePath = "/pages/" + pageId;
         return this.requestPromise(pagePath);
     };
+    OneNoteApi.prototype.getPageContent = function (pageId) {
+        var pagePath = "/pages/" + pageId + "/content";
+        return this.requestPromise(pagePath);
+    };
     /**
      * UpdatePage
      */
