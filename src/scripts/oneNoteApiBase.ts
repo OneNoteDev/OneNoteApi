@@ -67,9 +67,18 @@ export class OneNoteApiBase {
 				// TODO: more status code checking
 				if (request.status === 200 || request.status === 201 || request.status === 204) {
 					try {
-						let response = request.response ? request.response : "{}";
-						let parsedResponse = JSON.parse(response);
-						let responsePackage: ResponsePackage<any> = { parsedResponse: parsedResponse, request: request };
+						// The types of content we receive are:
+						// 	1. application/json; odata.metadata=minimal
+						// 	2. text/html; charset=utf-8
+						let contentTypeOfResponse = request.getResponseHeader("Content-Type");
+						if (contentTypeOfResponse) {
+							contentTypeOfResponse = contentTypeOfResponse.split(";")[0];
+						}
+						let response = request.response;
+						if (contentTypeOfResponse === "application/json") {
+							response = JSON.parse(request.response ? request.response : "{}");
+						}
+						let responsePackage: ResponsePackage<any> = { parsedResponse: response, request: request };
 						resolve(responsePackage);
 					} catch (e) {
 						reject(ErrorUtils.createRequestErrorObject(request, RequestErrorType.UNABLE_TO_PARSE_RESPONSE));

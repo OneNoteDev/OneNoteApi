@@ -441,9 +441,18 @@ var OneNoteApiBase = (function () {
                 // TODO: more status code checking
                 if (request.status === 200 || request.status === 201 || request.status === 204) {
                     try {
-                        var response = request.response ? request.response : "{}";
-                        var parsedResponse = JSON.parse(response);
-                        var responsePackage = { parsedResponse: parsedResponse, request: request };
+                        // The types of content we receive are:
+                        // 	1. application/json; odata.metadata=minimal
+                        // 	2. text/html; charset=utf-8
+                        var contentTypeOfResponse = request.getResponseHeader("Content-Type");
+                        if (contentTypeOfResponse) {
+                            contentTypeOfResponse = contentTypeOfResponse.split(";")[0];
+                        }
+                        var response = request.response;
+                        if (contentTypeOfResponse === "application/json") {
+                            response = JSON.parse(request.response ? request.response : "{}");
+                        }
+                        var responsePackage = { parsedResponse: response, request: request };
                         resolve(responsePackage);
                     }
                     catch (e) {
