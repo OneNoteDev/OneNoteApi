@@ -69,7 +69,8 @@ export class OneNoteApiBase {
 				// TODO: more status code checking
 				if (request.status === 200 || request.status === 201 || request.status === 204) {
 					try {
-						let contentTypeOfResponse: ContentType.MediaType;
+						let contentTypeOfResponse: ContentType.MediaType = { type: "" };
+
 						try {
 							contentTypeOfResponse = ContentType.parse(request.getResponseHeader("Content-Type"));
 						} catch (ex) {

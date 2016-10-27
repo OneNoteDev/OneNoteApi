@@ -443,7 +443,7 @@ var OneNoteApiBase = (function () {
                 // TODO: more status code checking
                 if (request.status === 200 || request.status === 201 || request.status === 204) {
                     try {
-                        var contentTypeOfResponse = void 0;
+                        var contentTypeOfResponse = { type: "" };
                         try {
                             contentTypeOfResponse = ContentType.parse(request.getResponseHeader("Content-Type"));
                         }
