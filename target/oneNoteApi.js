@@ -301,8 +301,14 @@ var OneNoteApi = (function (_super) {
         var pagePath = "/pages/" + pageId + "/content";
         return this.requestPromise(pagePath);
     };
-    OneNoteApi.prototype.getPages = function () {
+    OneNoteApi.prototype.getPages = function (options) {
         var pagePath = "/pages";
+        if (options.top > 0 && options.top === Math.floor(options.top)) {
+            pagePath += "?top=" + options.top;
+        }
+        if (options.sectionId) {
+            pagePath = "/sections/" + options.sectionId + pagePath;
+        }
         return this.requestPromise(pagePath);
     };
     /**

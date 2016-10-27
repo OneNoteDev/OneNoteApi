@@ -97,7 +97,7 @@ declare namespace OneNoteApi {
 		/**
 		 * GetPages
 		 */
-		getPages(): Promise<ResponsePackage<any> | OneNoteApi.RequestError>;
+		getPages(options: { top?: number, sectionId?: string }): Promise<ResponsePackage<any> | OneNoteApi.RequestError>;
 
 		/**
 		 * UpdatePage

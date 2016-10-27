@@ -43,8 +43,17 @@ export class OneNoteApi extends OneNoteApiBase {
 		return this.requestPromise(pagePath);
 	}
 
-	public getPages(): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
+	public getPages(options: { top?: number, sectionId?: string }): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
 		let pagePath = "/pages";
+
+		if (options.top > 0 && options.top === Math.floor(options.top)) {
+			pagePath += "?top=" + options.top;
+		}
+
+		if (options.sectionId) {
+			pagePath = "/sections/" + options.sectionId + pagePath;
+		}
+
 		return this.requestPromise(pagePath);
 	}
 
