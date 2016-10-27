@@ -1,7 +1,10 @@
 /// <reference path="../definitions/es6-promise/es6-promise.d.ts"/>
 /// <reference path="../oneNoteApi.d.ts"/>
+/// <reference path="../node_modules/@types/content-type/index.d.ts">
 
 import {ErrorUtils, RequestErrorType} from "./errorUtils";
+
+import * as ContentType from "content-type";
 
 type XHRData = ArrayBufferView | Blob | Document | string | FormData;
 
@@ -60,26 +63,30 @@ export class OneNoteApiBase {
 			}
 
 			request.open(type, url);
-
 			request.timeout = this.timeout;
 
 			request.onload = () => {
 				// TODO: more status code checking
 				if (request.status === 200 || request.status === 201 || request.status === 204) {
 					try {
-						// The types of content we receive are:
-						// 	1. application/json; odata.metadata=minimal
-						// 	2. text/html; charset=utf-8
-						let contentTypeOfResponse = request.getResponseHeader("Content-Type");
-						if (contentTypeOfResponse) {
-							contentTypeOfResponse = contentTypeOfResponse.split(";")[0];
+						let contentTypeOfResponse: ContentType.MediaType;
+						try {
+							contentTypeOfResponse = ContentType.parse(request.getResponseHeader("Content-Type"));
+						} catch (ex) {
+							// Patch requests do not return a content type, so this is ok.
 						}
+
 						let response = request.response;
-						if (contentTypeOfResponse === "application/json") {
-							response = JSON.parse(request.response ? request.response : "{}");
+						switch (contentTypeOfResponse.type) {
+							case "application/json":
+								response = JSON.parse(request.response ? request.response : "{}");
+								break;
+							case "text/html":
+							default:
+								response = request.response;
 						}
-						let responsePackage: ResponsePackage<any> = { parsedResponse: response, request: request };
-						resolve(responsePackage);
+
+						resolve({ parsedResponse: response, request: request });
 					} catch (e) {
 						reject(ErrorUtils.createRequestErrorObject(request, RequestErrorType.UNABLE_TO_PARSE_RESPONSE));
 					}
