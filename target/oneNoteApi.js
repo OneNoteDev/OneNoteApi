@@ -301,6 +301,10 @@ var OneNoteApi = (function (_super) {
         var pagePath = "/pages/" + pageId + "/content";
         return this.requestPromise(pagePath);
     };
+    OneNoteApi.prototype.getPages = function () {
+        var pagePath = "/pages";
+        return this.requestPromise(pagePath);
+    };
     /**
      * UpdatePage
      */
