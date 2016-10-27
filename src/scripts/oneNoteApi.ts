@@ -1,5 +1,6 @@
 import {OneNoteApiBase, ResponsePackage} from "./oneNoteApiBase";
 import {OneNotePage} from "./oneNotePage";
+import {Revision} from "./structuredTypes";
 
 /**
 * Wrapper for easier calling of the OneNote APIs.
@@ -27,6 +28,43 @@ export class OneNoteApi extends OneNoteApiBase {
 		let form = page.getTypedFormData();
 
 		return this.requestPromise(url, form.asBlob(), form.getContentType());
+	}
+
+	/**
+	 * GetPage
+	 */
+	public getPage(pageId: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
+		let pagePath = "/pages/" + pageId;
+		return this.requestPromise(pagePath);
+	}
+
+	public getPageContent(pageId: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
+		let pagePath = "/pages/" + pageId + "/content";
+		return this.requestPromise(pagePath);
+	}
+
+	public getPages(options: { top?: number, sectionId?: string }): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
+		let pagePath = "/pages";
+
+		if (options.top > 0 && options.top === Math.floor(options.top)) {
+			pagePath += "?top=" + options.top;
+		}
+
+		if (options.sectionId) {
+			pagePath = "/sections/" + options.sectionId + pagePath;
+		}
+
+		return this.requestPromise(pagePath);
+	}
+
+	/**
+	 * UpdatePage
+	 */
+	public updatePage(pageId: string, revisions: Revision[]): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
+		let pagePath = "/pages/" + pageId;
+		let url = pagePath + "/content";
+
+		return this.requestPromise(url, JSON.stringify(revisions), "application/json", "PATCH");
 	}
 
 	/**

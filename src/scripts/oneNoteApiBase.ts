@@ -1,7 +1,10 @@
 /// <reference path="../definitions/es6-promise/es6-promise.d.ts"/>
 /// <reference path="../oneNoteApi.d.ts"/>
+/// <reference path="../definitions/content-type/content-type.d.ts"/>
 
 import {ErrorUtils, RequestErrorType} from "./errorUtils";
+
+import * as ContentType from "content-type";
 
 type XHRData = ArrayBufferView | Blob | Document | string | FormData;
 
@@ -27,7 +30,7 @@ export class OneNoteApiBase {
 		this.headers = headers;
 	}
 
-	public requestPromise(partialUrl: string, data?: XHRData, contentType?: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
+	public requestPromise(partialUrl: string, data?: XHRData, contentType?: string, httpMethod?: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
 		let fullUrl = this.generateFullUrl(partialUrl);
 
 		if (contentType === null) {
@@ -35,7 +38,7 @@ export class OneNoteApiBase {
 		}
 
 		return new Promise(((resolve: (responsePackage: ResponsePackage<any>) => void, reject: (error: OneNoteApi.RequestError) => void) => {
-			this.makeRequest(fullUrl, data, contentType).then((responsePackage: ResponsePackage<any>) => {
+			this.makeRequest(fullUrl, data, contentType, httpMethod).then((responsePackage: ResponsePackage<any>) => {
 				resolve(responsePackage);
 			}, (error: OneNoteApi.RequestError) => {
 				reject(error);
@@ -48,22 +51,43 @@ export class OneNoteApiBase {
 		return apiRootUrl + partialUrl;
 	}
 
-	private makeRequest(url: string, data?: XHRData, contentType?: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
+	private makeRequest(url: string, data?: XHRData, contentType?: string, httpMethod?: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
 		return new Promise((resolve: (responsePackage: ResponsePackage<any>) => void, reject: (error: OneNoteApi.RequestError) => void) => {
 			let request = new XMLHttpRequest();
 
-			let type: string = data ? "POST" : "GET";
-			request.open(type, url);
+			let type: string;
+			if (!!httpMethod) {
+				type = httpMethod;
+			} else {
+				type = data ? "POST" : "GET";
+			}
 
+			request.open(type, url);
 			request.timeout = this.timeout;
 
 			request.onload = () => {
 				// TODO: more status code checking
-				if (request.status === 200 || request.status === 201) {
+				if (request.status === 200 || request.status === 201 || request.status === 204) {
 					try {
-						let parsedResponse = JSON.parse(request.response);
-						let responsePackage: ResponsePackage<any> = { parsedResponse: parsedResponse, request: request };
-						resolve(responsePackage);
+						let contentTypeOfResponse: ContentType.MediaType = { type: "" };
+
+						try {
+							contentTypeOfResponse = ContentType.parse(request.getResponseHeader("Content-Type"));
+						} catch (ex) {
+							// Patch requests do not return a content type, so this is ok.
+						}
+
+						let response = request.response;
+						switch (contentTypeOfResponse.type) {
+							case "application/json":
+								response = JSON.parse(request.response ? request.response : "{}");
+								break;
+							case "text/html":
+							default:
+								response = request.response;
+						}
+
+						resolve({ parsedResponse: response, request: request });
 					} catch (e) {
 						reject(ErrorUtils.createRequestErrorObject(request, RequestErrorType.UNABLE_TO_PARSE_RESPONSE));
 					}

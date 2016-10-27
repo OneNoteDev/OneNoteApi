@@ -25,6 +25,29 @@ interface PageParent {
 	pages: Page[];
 }
 
+// These ENUMs are not capitalized because
+// the API documentation has them as all lowercase
+export module Revision {
+	export enum Action {
+		append,
+		insert,
+		prepend,
+		replace,
+	}
+
+	export enum Position {
+		after,
+		before
+	}
+}
+
+export interface Revision {
+	target: string;
+	action: Revision.Action;
+	content: string;
+	position?: Revision.Position;
+}
+
 export interface Notebook extends Identifyable, HistoryTime, HistoryBy, SectionAndSectionGroupParent {
 	name: string;
 	isDefault: boolean;

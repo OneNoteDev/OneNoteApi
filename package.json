@@ -1,5 +1,5 @@
 {
-  "version": "1.0.4",
+  "version": "1.0.5",
   "name": "onenoteapi",
   "description": "JavaScript library to make calling the OneNote API easier.",
   "main": "target/modules/oneNoteApi.js",
@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "browserify": "^13.0.0",
+    "content-type": "^1.0.2",
     "del": "^2.0.2",
     "file-system": "^2.2.1",
     "globby": "^4.0.0",
@@ -33,5 +34,10 @@
     "typescript": "^1.7.3",
     "vinyl-source-stream": "^1.1.0"
   },
-  "files": ["README.*", "target/oneNoteApi.d.ts", "target/oneNoteApi.js", "target/oneNoteApi.min.js"]
+  "files": [
+    "README.*",
+    "target/oneNoteApi.d.ts",
+    "target/oneNoteApi.js",
+    "target/oneNoteApi.min.js"
+  ]
 }

@@ -85,6 +85,26 @@ declare namespace OneNoteApi {
 		createPage(page: OneNotePage, sectionId?: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError>;
 
 		/**
+		 * GetPage
+		 */
+		getPage(pageId: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError>;
+
+		/**
+		 * GetPageContent
+		 */
+		getPageContent(pageId: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError>;
+
+		/**
+		 * GetPages
+		 */
+		getPages(options: { top?: number, sectionId?: string }): Promise<ResponsePackage<any> | OneNoteApi.RequestError>;
+
+		/**
+		 * UpdatePage
+		 */
+		updatePage(pageId: string, revisions: Revision[]): Promise<ResponsePackage<any> | OneNoteApi.RequestError>;
+
+		/**
 		 * CreateSection
 		 */
 		createSection(notebookId: string, name: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError>;
@@ -135,6 +155,13 @@ declare namespace OneNoteApi {
 	interface PageParent {
 		pagesUrl: string;
 		pages: Page[];
+	}
+
+	export interface Revision {
+		target: string;
+		action: string;
+		content: string;
+		position?: string;
 	}
 
 	export interface Notebook extends Identifyable, HistoryTime, HistoryBy, SectionAndSectionGroupParent {
