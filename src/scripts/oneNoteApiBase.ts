@@ -1,6 +1,6 @@
 /// <reference path="../definitions/es6-promise/es6-promise.d.ts"/>
 /// <reference path="../oneNoteApi.d.ts"/>
-/// <reference path="../node_modules/@types/content-type/index.d.ts">
+/// <reference path="../definitions/content-type/content-type.d.ts"/>
 
 import {ErrorUtils, RequestErrorType} from "./errorUtils";
 

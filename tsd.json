@@ -12,6 +12,12 @@
     },
     "es6-promise/es6-promise.d.ts": {
       "commit": "785c18f0c897c44ea7fa1a47f3bcb48110658520"
+    },
+    "content-type/content-type.d.ts": {
+      "commit": "9a792f184cbd916cc24ab8964cfd3a04f9f1101b"
+    },
+    "deoxxa-content-type/content-type.d.ts": {
+      "commit": "9a792f184cbd916cc24ab8964cfd3a04f9f1101b"
     }
   }
 }
