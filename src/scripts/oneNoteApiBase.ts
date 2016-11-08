@@ -24,10 +24,21 @@ export class OneNoteApiBase {
 	private timeout: number;
 	private headers: { [key: string]: string };
 
-	constructor(token: string, timeout: number, headers: { [key: string]: string } = {}) {
+	constructor(token: string, timeout: number, headers: { [key: string]: string } = {}, useBetaApi?: boolean) {
 		this.token = token;
 		this.timeout = timeout;
 		this.headers = headers;
+		this.useBetaApi = useBetaApi ? useBetaApi : this.useBetaApi;
+	}
+
+	public requestBasePromise(partialUrl: string, data?: XHRData, contentType?: string, httpMethod?: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
+		let fullUrl = this.generateFullBaseUrl(partialUrl);
+
+		if (contentType === null) {
+			contentType = "application/json";
+		}
+
+		return this.makeRequest(fullUrl, data, contentType, httpMethod);
 	}
 
 	public requestPromise(partialUrl: string, data?: XHRData, contentType?: string, httpMethod?: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
@@ -46,7 +57,12 @@ export class OneNoteApiBase {
 		}));
 	}
 
-	private generateFullUrl(partialUrl: string): string {
+	public generateFullBaseUrl(partialUrl: string): string {
+		let apiRootUrl: string = this.useBetaApi ? "https://www.onenote.com/beta" : "https://www.onenote.com/api/v1.0";
+		return apiRootUrl + partialUrl;
+	}
+
+	public generateFullUrl(partialUrl: string): string {
 		let apiRootUrl: string = this.useBetaApi ? "https://www.onenote.com/api/beta/me/notes" : "https://www.onenote.com/api/v1.0/me/notes";
 		return apiRootUrl + partialUrl;
 	}

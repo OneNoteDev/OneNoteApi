@@ -1,13 +1,13 @@
 import {OneNoteApiBase, ResponsePackage} from "./oneNoteApiBase";
 import {OneNotePage} from "./oneNotePage";
-import {Revision} from "./structuredTypes";
+import {Revision, BatchRequest} from "./structuredTypes";
 
 /**
 * Wrapper for easier calling of the OneNote APIs.
 */
 export class OneNoteApi extends OneNoteApiBase {
-	constructor(token: string, timeout = 30000, headers: { [key: string]: string } = {}) {
-		super(token, timeout, headers);
+	constructor(token: string, timeout = 30000, headers: { [key: string]: string } = {}, useBetaApi?: boolean) {
+		super(token, timeout, headers, useBetaApi);
 	}
 
 	/**
@@ -103,6 +103,35 @@ export class OneNoteApi extends OneNoteApiBase {
 	*/
 	public pagesSearch(query: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
 		return this.requestPromise(this.getSearchUrl(query));
+	}
+
+	/**
+	 * BatchRequests
+	 **/
+	public batchRequests(batchRequests: BatchRequest[]) {
+		let boundaryName = "batch_" + Math.floor(Math.random() * 1000);
+		let contentType = "Content-Type: application/http";
+		let contentTransferEncoding = "Content-Transfer-Encoding: binary";
+
+		let data = "";
+		batchRequests.forEach((batchRequest) => {
+			let req = "";
+			req += "--" + boundaryName + "\n";
+			req += contentType + "\n";
+			req += contentTransferEncoding + "\n";
+
+			req += "\n";
+
+			req += batchRequest.httpMethod.toUpperCase() + " " + batchRequest.uri + " " + batchRequest.protocol + "\n"; // usually HTTP 1.1
+
+			req += "\n";
+			
+			req += batchRequest.content + "\n";
+
+			data += req + "\n\n";
+		});
+
+		return this.requestBasePromise("/$batch", data, 'multipart/mixed; boundary="' + boundaryName + '";', "POST");
 	}
 
 	/**

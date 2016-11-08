@@ -269,10 +269,10 @@ var oneNoteApiBase_1 = require("./oneNoteApiBase");
 */
 var OneNoteApi = (function (_super) {
     __extends(OneNoteApi, _super);
-    function OneNoteApi(token, timeout, headers) {
+    function OneNoteApi(token, timeout, headers, useBetaApi) {
         if (timeout === void 0) { timeout = 30000; }
         if (headers === void 0) { headers = {}; }
-        _super.call(this, token, timeout, headers);
+        _super.call(this, token, timeout, headers, useBetaApi);
     }
     /**
     * CreateNotebook
@@ -355,6 +355,27 @@ var OneNoteApi = (function (_super) {
         return this.requestPromise(this.getSearchUrl(query));
     };
     /**
+     * BatchRequests
+     **/
+    OneNoteApi.prototype.batchRequests = function (batchRequests) {
+        var boundaryName = "batch_" + Math.floor(Math.random() * 1000);
+        var contentType = "Content-Type: application/http";
+        var contentTransferEncoding = "Content-Transfer-Encoding: binary";
+        var data = "";
+        batchRequests.forEach(function (batchRequest) {
+            var req = "";
+            req += "--" + boundaryName + "\n";
+            req += contentType + "\n";
+            req += contentTransferEncoding + "\n";
+            req += "\n";
+            req += batchRequest.httpMethod.toUpperCase() + " " + batchRequest.uri + " " + batchRequest.protocol + "\n"; // usually HTTP 1.1
+            req += "\n";
+            req += batchRequest.content + "\n";
+            data += req + "\n\n";
+        });
+        return this.requestBasePromise("/$batch", data, 'multipart/mixed; boundary="' + boundaryName + '";', "POST");
+    };
+    /**
     * GetExpands
     *
     * Nest expands so we can get notebook elements (sections and section groups) in
@@ -410,14 +431,22 @@ var ContentType = require("content-type");
 * Base communication layer for talking to the OneNote APIs.
 */
 var OneNoteApiBase = (function () {
-    function OneNoteApiBase(token, timeout, headers) {
+    function OneNoteApiBase(token, timeout, headers, useBetaApi) {
         if (headers === void 0) { headers = {}; }
         // Whether or not the OneNote Beta APIs should be used.
         this.useBetaApi = false;
         this.token = token;
         this.timeout = timeout;
         this.headers = headers;
+        this.useBetaApi = useBetaApi ? useBetaApi : this.useBetaApi;
     }
+    OneNoteApiBase.prototype.requestBasePromise = function (partialUrl, data, contentType, httpMethod) {
+        var fullUrl = this.generateFullBaseUrl(partialUrl);
+        if (contentType === null) {
+            contentType = "application/json";
+        }
+        return this.makeRequest(fullUrl, data, contentType, httpMethod);
+    };
     OneNoteApiBase.prototype.requestPromise = function (partialUrl, data, contentType, httpMethod) {
         var _this = this;
         var fullUrl = this.generateFullUrl(partialUrl);
@@ -431,6 +460,10 @@ var OneNoteApiBase = (function () {
                 reject(error);
             });
         }));
+    };
+    OneNoteApiBase.prototype.generateFullBaseUrl = function (partialUrl) {
+        var apiRootUrl = this.useBetaApi ? "https://www.onenote.com/beta" : "https://www.onenote.com/api/v1.0";
+        return apiRootUrl + partialUrl;
     };
     OneNoteApiBase.prototype.generateFullUrl = function (partialUrl) {
         var apiRootUrl = this.useBetaApi ? "https://www.onenote.com/api/beta/me/notes" : "https://www.onenote.com/api/v1.0/me/notes";
