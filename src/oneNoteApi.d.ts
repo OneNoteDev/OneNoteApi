@@ -49,6 +49,8 @@ declare namespace OneNoteApi {
 			[key: string]: string;
 		});
 
+		getEntireOnml(): string;
+
 		escapeHtmlEntities(value: string): string;
 
 		getTypedFormData(): TypedFormData;
@@ -124,10 +126,15 @@ declare namespace OneNoteApi {
 		 */
 		getNotebookByName(name: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError>;
 
-		/**
+		/**s
 		 * PagesSearch
 		 */
 		pagesSearch(query: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError>;
+
+		/**
+		 * BatchRequests
+		 */
+		batchRequests(batchRequests: BatchRequest[]): Promise<ResponsePackage<any> | OneNoteApi.RequestError>;
 	}
 
 	interface Identifyable {
@@ -163,6 +170,15 @@ declare namespace OneNoteApi {
 		content: string;
 		position?: string;
 	}
+
+	export interface BatchRequest {
+		httpMethod: string;
+		uri: string;
+		protocol: string;
+		contentType: string;
+		content?: string;
+	}
+
 
 	export interface Notebook extends Identifyable, HistoryTime, HistoryBy, SectionAndSectionGroupParent {
 		name: string;

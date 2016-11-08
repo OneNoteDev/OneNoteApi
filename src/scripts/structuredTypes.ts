@@ -84,3 +84,16 @@ export interface Page extends Identifyable, HistoryTime {
 	};
 	thumbnailUrl: string;
 }
+
+// // Individual
+// // Wraps the creation of the request object to also send the request itself
+// createPage(page, sectionId): Promise<any> {
+// 	let requestObject = createPageRequest(page, sectionId) // returns RequestObject 
+// 	return requestPromise(requestObject);
+// }
+
+// // Batch
+// let createPage = createPageRequest(...); // returns object of type RequestObject
+// let patchPage = createPatchRequest(...); // returns object of type RequestObject
+
+// OneNoteApi.batchRequests([createPage, patchPage])

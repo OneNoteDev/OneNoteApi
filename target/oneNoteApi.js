@@ -368,12 +368,15 @@ var OneNoteApi = (function (_super) {
             req += contentType + "\n";
             req += contentTransferEncoding + "\n";
             req += "\n";
-            req += batchRequest.httpMethod.toUpperCase() + " " + batchRequest.uri + " " + batchRequest.protocol + "\n"; // usually HTTP 1.1
+            var newUri = "/api/beta/me/notes" + batchRequest.uri;
+            req += batchRequest.httpMethod.toUpperCase() + " " + newUri + " " + batchRequest.protocol + "\n"; // usually HTTP 1.1
+            req += "Content-Type: " + batchRequest.contentType + "\n";
             req += "\n";
-            req += batchRequest.content + "\n";
+            req += "<html><head><title>blah</title><body><p>yo</p></body></html>" + "\n";
             data += req + "\n\n";
         });
-        return this.requestBasePromise("/$batch", data, 'multipart/mixed; boundary="' + boundaryName + '";', "POST");
+        data += "--" + boundaryName + "--\n";
+        return this.requestBasePromise("/$batch", data, 'multipart/mixed; boundary="' + boundaryName + '"', "POST");
     };
     /**
     * GetExpands
@@ -462,7 +465,7 @@ var OneNoteApiBase = (function () {
         }));
     };
     OneNoteApiBase.prototype.generateFullBaseUrl = function (partialUrl) {
-        var apiRootUrl = this.useBetaApi ? "https://www.onenote.com/beta" : "https://www.onenote.com/api/v1.0";
+        var apiRootUrl = this.useBetaApi ? "https://www.onenote.com/beta" : "https://www.onenote.com/api/beta";
         return apiRootUrl + partialUrl;
     };
     OneNoteApiBase.prototype.generateFullUrl = function (partialUrl) {

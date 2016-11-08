@@ -122,16 +122,20 @@ export class OneNoteApi extends OneNoteApiBase {
 
 			req += "\n";
 
-			req += batchRequest.httpMethod.toUpperCase() + " " + batchRequest.uri + " " + batchRequest.protocol + "\n"; // usually HTTP 1.1
+			const newUri = "/api/beta/me/notes" + batchRequest.uri;
+			req += batchRequest.httpMethod.toUpperCase() + " " + newUri + " " + batchRequest.protocol + "\n"; // usually HTTP 1.1
+			req += "Content-Type: " + batchRequest.contentType + "\n";
 
 			req += "\n";
-			
-			req += batchRequest.content + "\n";
+
+			req += "<html><head><title>blah</title><body><p>yo</p></body></html>" + "\n";
 
 			data += req + "\n\n";
 		});
 
-		return this.requestBasePromise("/$batch", data, 'multipart/mixed; boundary="' + boundaryName + '";', "POST");
+		data += "--" + boundaryName + "--\n";
+
+		return this.requestBasePromise("/$batch", data, 'multipart/mixed; boundary="' + boundaryName + '"', "POST");
 	}
 
 	/**
