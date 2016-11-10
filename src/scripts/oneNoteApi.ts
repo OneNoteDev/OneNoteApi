@@ -2,12 +2,32 @@ import {OneNoteApiBase, ResponsePackage} from "./oneNoteApiBase";
 import {OneNotePage} from "./oneNotePage";
 import {Revision, BatchRequest} from "./structuredTypes";
 
+declare function require(name: string);
+
 /**
 * Wrapper for easier calling of the OneNote APIs.
 */
 export class OneNoteApi extends OneNoteApiBase {
 	constructor(token: string, timeout = 30000, headers: { [key: string]: string } = {}, useBetaApi?: boolean) {
 		super(token, timeout, headers, useBetaApi);
+	}
+
+	public createRequestObject() {
+		return "";
+	}
+
+	/**
+	 * Helper Method to use beta features OR to use beta endpoints
+	 */
+	private enableBetaApi() {
+		this.useBetaApi = true;
+	}
+
+	/**
+	 * Helper method to turn off beta features OR endpoints
+	 */
+	private disableBetaApi() {
+		this.useBetaApi = false;
 	}
 
 	/**
@@ -116,26 +136,26 @@ export class OneNoteApi extends OneNoteApiBase {
 		let data = "";
 		batchRequests.forEach((batchRequest) => {
 			let req = "";
-			req += "--" + boundaryName + "\n";
-			req += contentType + "\n";
-			req += contentTransferEncoding + "\n";
+			req += "--batch_43706cbec49f4b73a2221b6da7c85140" + "\r\n";
+			req += "Content-Type: application/http" + "\r\n";
+			req += "Content-Transfer-Encoding: binary" + "\r\n";
 
-			req += "\n";
+			req += "\r\n";
 
-			const newUri = "/api/beta/me/notes" + batchRequest.uri;
-			req += batchRequest.httpMethod.toUpperCase() + " " + newUri + " " + batchRequest.protocol + "\n"; // usually HTTP 1.1
-			req += "Content-Type: " + batchRequest.contentType + "\n";
+			req += "POST /api/v1.0/me/notes/sections/0-9C38937B9074D871!207/pages HTTP/1.1" + "\r\n";
+			req += "Content-Type: text/html" + "\r\n";
 
-			req += "\n";
+			req += "\r\n";
 
-			req += "<html><head><title>blah</title><body><p>yo</p></body></html>" + "\n";
+			req += '<!DOCTYPE html><html lang="en-US"><head><title>Page1</title><meta name="created" content="2001-01-01T01:01+0100"></head><body><iframe data-original-src= "https://www.youtube.com/watch?v=h07qZLLQc4I", width="280" height="280"/></body></html>' + "\r\n";
 
-			data += req + "\n\n";
+			req += "\r\n";
+
+			req += "--batch_43706cbec49f4b73a2221b6da7c85140--" + "\r\n";
+			data += req;
 		});
 
-		data += "--" + boundaryName + "--\n";
-
-		return this.requestBasePromise("/$batch", data, 'multipart/mixed; boundary="' + boundaryName + '"', "POST");
+		return this.requestBasePromise("/$batch", data, 'multipart/mixed; boundary="batch_43706cbec49f4b73a2221b6da7c85140"', "POST");
 	}
 
 	/**
