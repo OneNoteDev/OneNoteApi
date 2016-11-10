@@ -174,7 +174,6 @@ declare namespace OneNoteApi {
 	export interface BatchRequest {
 		httpMethod: string;
 		uri: string;
-		protocol: string;
 		contentType: string;
 		content?: string;
 	}
