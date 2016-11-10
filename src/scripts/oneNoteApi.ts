@@ -8,26 +8,8 @@ declare function require(name: string);
 * Wrapper for easier calling of the OneNote APIs.
 */
 export class OneNoteApi extends OneNoteApiBase {
-	constructor(token: string, timeout = 30000, headers: { [key: string]: string } = {}, useBetaApi?: boolean) {
-		super(token, timeout, headers, useBetaApi);
-	}
-
-	public createRequestObject() {
-		return "";
-	}
-
-	/**
-	 * Helper Method to use beta features OR to use beta endpoints
-	 */
-	private enableBetaApi() {
-		this.useBetaApi = true;
-	}
-
-	/**
-	 * Helper method to turn off beta features OR endpoints
-	 */
-	private disableBetaApi() {
-		this.useBetaApi = false;
+	constructor(token: string, timeout = 30000, headers: { [key: string]: string } = {}) {
+		super(token, timeout, headers);
 	}
 
 	/**
@@ -129,6 +111,7 @@ export class OneNoteApi extends OneNoteApiBase {
 	 * BatchRequests
 	 **/
 	public batchRequests(batchRequests: BatchRequest[]) {
+		this.enableBetaApi();
 		let boundaryName = "batch_" + Math.floor(Math.random() * 1000);
 		let contentType = "Content-Type: application/http";
 		let contentTransferEncoding = "Content-Transfer-Encoding: binary";
@@ -147,7 +130,6 @@ export class OneNoteApi extends OneNoteApiBase {
 
 			req += "\r\n";
 
-			// req += '<!DOCTYPE html><html lang="en-US"><head><title>Page1</title><meta name="created" content="2001-01-01T01:01+0100"></head><body><iframe data-original-src= "https://www.youtube.com/watch?v=h07qZLLQc4I", width="280" height="280"/></body></html>' + "\r\n";
 			req += batchRequest.content + "\r\n";
 
 			req += "\r\n";
@@ -156,7 +138,7 @@ export class OneNoteApi extends OneNoteApiBase {
 		});
 		data += "--" + boundaryName + "--\r\n";
 
-		return this.requestBasePromise("/$batch", data, 'multipart/mixed; boundary="' + boundaryName + '"', "POST");
+		return this.requestBasePromise("/$batch", data, 'multipart/mixed; boundary="' + boundaryName + '"', "POST").then(this.disableBetaApi.bind(this));
 	}
 
 	/**
@@ -193,6 +175,20 @@ export class OneNoteApi extends OneNoteApiBase {
 	*/
 	private getSearchUrl(query: string): string {
 		return "/pages?search=" + query;
+	}
+
+	/**
+	 * Helper Method to use beta features OR to use beta endpoints
+	 */
+	private enableBetaApi() {
+		this.useBetaApi = true;
+	}
+
+	/**
+	 * Helper method to turn off beta features OR endpoints
+	 */
+	private disableBetaApi() {
+		this.useBetaApi = false;
 	}
 }
 

@@ -58,7 +58,7 @@ export class OneNoteApiBase {
 	}
 
 	public generateFullBaseUrl(partialUrl: string): string {
-		let apiRootUrl: string = this.useBetaApi ? "https://www.onenote.com/beta" : "https://www.onenote.com/api/beta";
+		let apiRootUrl: string = this.useBetaApi ? "https://www.onenote.com/api/beta" : "https://www.onenote.com/api/v1.0";
 		return apiRootUrl + partialUrl;
 	}
 

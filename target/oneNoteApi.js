@@ -269,26 +269,11 @@ var oneNoteApiBase_1 = require("./oneNoteApiBase");
 */
 var OneNoteApi = (function (_super) {
     __extends(OneNoteApi, _super);
-    function OneNoteApi(token, timeout, headers, useBetaApi) {
+    function OneNoteApi(token, timeout, headers) {
         if (timeout === void 0) { timeout = 30000; }
         if (headers === void 0) { headers = {}; }
-        _super.call(this, token, timeout, headers, useBetaApi);
+        _super.call(this, token, timeout, headers);
     }
-    OneNoteApi.prototype.createRequestObject = function () {
-        return "";
-    };
-    /**
-     * Helper Method to use beta features OR to use beta endpoints
-     */
-    OneNoteApi.prototype.enableBetaApi = function () {
-        this.useBetaApi = true;
-    };
-    /**
-     * Helper method to turn off beta features OR endpoints
-     */
-    OneNoteApi.prototype.disableBetaApi = function () {
-        this.useBetaApi = false;
-    };
     /**
     * CreateNotebook
     */
@@ -373,6 +358,7 @@ var OneNoteApi = (function (_super) {
      * BatchRequests
      **/
     OneNoteApi.prototype.batchRequests = function (batchRequests) {
+        this.enableBetaApi();
         var boundaryName = "batch_" + Math.floor(Math.random() * 1000);
         var contentType = "Content-Type: application/http";
         var contentTransferEncoding = "Content-Transfer-Encoding: binary";
@@ -386,13 +372,12 @@ var OneNoteApi = (function (_super) {
             req += batchRequest.httpMethod + " " + batchRequest.uri + " " + "HTTP/1.1" + "\r\n";
             req += "Content-Type: " + batchRequest.contentType + "\r\n";
             req += "\r\n";
-            // req += '<!DOCTYPE html><html lang="en-US"><head><title>Page1</title><meta name="created" content="2001-01-01T01:01+0100"></head><body><iframe data-original-src= "https://www.youtube.com/watch?v=h07qZLLQc4I", width="280" height="280"/></body></html>' + "\r\n";
             req += batchRequest.content + "\r\n";
             req += "\r\n";
             data += req;
         });
         data += "--" + boundaryName + "--\r\n";
-        return this.requestBasePromise("/$batch", data, 'multipart/mixed; boundary="' + boundaryName + '"', "POST");
+        return this.requestBasePromise("/$batch", data, 'multipart/mixed; boundary="' + boundaryName + '"', "POST").then(this.disableBetaApi.bind(this));
     };
     /**
     * GetExpands
@@ -425,6 +410,18 @@ var OneNoteApi = (function (_super) {
     */
     OneNoteApi.prototype.getSearchUrl = function (query) {
         return "/pages?search=" + query;
+    };
+    /**
+     * Helper Method to use beta features OR to use beta endpoints
+     */
+    OneNoteApi.prototype.enableBetaApi = function () {
+        this.useBetaApi = true;
+    };
+    /**
+     * Helper method to turn off beta features OR endpoints
+     */
+    OneNoteApi.prototype.disableBetaApi = function () {
+        this.useBetaApi = false;
     };
     return OneNoteApi;
 }(oneNoteApiBase_1.OneNoteApiBase));
@@ -481,7 +478,7 @@ var OneNoteApiBase = (function () {
         }));
     };
     OneNoteApiBase.prototype.generateFullBaseUrl = function (partialUrl) {
-        var apiRootUrl = this.useBetaApi ? "https://www.onenote.com/beta" : "https://www.onenote.com/api/beta";
+        var apiRootUrl = this.useBetaApi ? "https://www.onenote.com/api/beta" : "https://www.onenote.com/api/v1.0";
         return apiRootUrl + partialUrl;
     };
     OneNoteApiBase.prototype.generateFullUrl = function (partialUrl) {
