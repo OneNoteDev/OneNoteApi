@@ -30,7 +30,7 @@ export class OneNoteApiBase {
 		this.headers = headers;
 	}
 
-	public requestPromise(partialUrl: string, data?: XHRData, contentType?: string, httpMethod?: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
+	protected requestPromise(partialUrl: string, data?: XHRData, contentType?: string, httpMethod?: string): Promise<ResponsePackage<any>> {
 		let fullUrl = this.generateFullUrl(partialUrl);
 
 		if (contentType === null) {
@@ -51,7 +51,7 @@ export class OneNoteApiBase {
 		return apiRootUrl + partialUrl;
 	}
 
-	private makeRequest(url: string, data?: XHRData, contentType?: string, httpMethod?: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
+	private makeRequest(url: string, data?: XHRData, contentType?: string, httpMethod?: string): Promise<ResponsePackage<any>> {
 		return new Promise((resolve: (responsePackage: ResponsePackage<any>) => void, reject: (error: OneNoteApi.RequestError) => void) => {
 			let request = new XMLHttpRequest();
 
@@ -115,7 +115,7 @@ export class OneNoteApiBase {
 		});
 	}
 
-	public static addHeadersToRequest(openRequest: XMLHttpRequest, headers: { [key: string]: string }) {
+	private static addHeadersToRequest(openRequest: XMLHttpRequest, headers: { [key: string]: string }) {
 		if (headers) {
 			for (let key in headers) {
 				if (headers.hasOwnProperty(key)) {

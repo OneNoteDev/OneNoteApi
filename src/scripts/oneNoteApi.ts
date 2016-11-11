@@ -1,3 +1,4 @@
+import {IOneNoteApi} from "./iOneNoteApi";
 import {OneNoteApiBase, ResponsePackage} from "./oneNoteApiBase";
 import {OneNotePage} from "./oneNotePage";
 import {Revision} from "./structuredTypes";
@@ -5,7 +6,7 @@ import {Revision} from "./structuredTypes";
 /**
 * Wrapper for easier calling of the OneNote APIs.
 */
-export class OneNoteApi extends OneNoteApiBase {
+export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	constructor(token: string, timeout = 30000, headers: { [key: string]: string } = {}) {
 		super(token, timeout, headers);
 	}
@@ -13,7 +14,7 @@ export class OneNoteApi extends OneNoteApiBase {
 	/**
 	* CreateNotebook
 	*/
-	public createNotebook(name: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
+	public createNotebook(name: string): Promise<ResponsePackage<any>> {
 		let data = JSON.stringify({ name: name });
 
 		return this.requestPromise(this.getNotebooksUrl(), data);
@@ -22,7 +23,7 @@ export class OneNoteApi extends OneNoteApiBase {
 	/**
 	* CreatePage
 	*/
-	public createPage(page: OneNotePage, sectionId?: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
+	public createPage(page: OneNotePage, sectionId?: string): Promise<ResponsePackage<any>> {
 		let sectionPath = sectionId ? "/sections/" + sectionId : "";
 		let url = sectionPath + "/pages";
 		let form = page.getTypedFormData();
@@ -33,17 +34,17 @@ export class OneNoteApi extends OneNoteApiBase {
 	/**
 	 * GetPage
 	 */
-	public getPage(pageId: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
+	public getPage(pageId: string): Promise<ResponsePackage<any>> {
 		let pagePath = "/pages/" + pageId;
 		return this.requestPromise(pagePath);
 	}
 
-	public getPageContent(pageId: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
+	public getPageContent(pageId: string): Promise<ResponsePackage<any>> {
 		let pagePath = "/pages/" + pageId + "/content";
 		return this.requestPromise(pagePath);
 	}
 
-	public getPages(options: { top?: number, sectionId?: string }): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
+	public getPages(options: { top?: number, sectionId?: string }): Promise<ResponsePackage<any>> {
 		let pagePath = "/pages";
 
 		if (options.top > 0 && options.top === Math.floor(options.top)) {
@@ -60,7 +61,7 @@ export class OneNoteApi extends OneNoteApiBase {
 	/**
 	 * UpdatePage
 	 */
-	public updatePage(pageId: string, revisions: Revision[]): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
+	public updatePage(pageId: string, revisions: Revision[]): Promise<ResponsePackage<any>> {
 		let pagePath = "/pages/" + pageId;
 		let url = pagePath + "/content";
 
@@ -70,7 +71,7 @@ export class OneNoteApi extends OneNoteApiBase {
 	/**
 	* CreateSection
 	*/
-	public createSection(notebookId: string, name: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
+	public createSection(notebookId: string, name: string): Promise<ResponsePackage<any>> {
 		let obj: Object = { name: name };
 		let data = JSON.stringify(obj);
 
@@ -80,28 +81,28 @@ export class OneNoteApi extends OneNoteApiBase {
 	/**
 	* GetNotebooks
 	*/
-	public getNotebooks(excludeReadOnlyNotebooks = true): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
+	public getNotebooks(excludeReadOnlyNotebooks = true): Promise<ResponsePackage<any>> {
 		return this.requestPromise(this.getNotebooksUrl(null /*expands*/, excludeReadOnlyNotebooks));
 	}
 
 	/**
 	* GetNotebooksWithExpandedSections
 	*/
-	public getNotebooksWithExpandedSections(expands = 2, excludeReadOnlyNotebooks = true): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
+	public getNotebooksWithExpandedSections(expands = 2, excludeReadOnlyNotebooks = true): Promise<ResponsePackage<any>> {
 		return this.requestPromise(this.getNotebooksUrl(expands, excludeReadOnlyNotebooks));
 	}
 
 	/**
 	* GetNotebookbyName
 	*/
-	public getNotebookByName(name: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
+	public getNotebookByName(name: string): Promise<ResponsePackage<any>> {
 		return this.requestPromise("/notebooks?filter=name%20eq%20%27" + encodeURI(name) + "%27&orderby=createdTime");
 	}
 
 	/**
 	* PagesSearch
 	*/
-	public pagesSearch(query: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
+	public pagesSearch(query: string): Promise<ResponsePackage<any>> {
 		return this.requestPromise(this.getSearchUrl(query));
 	}
 
