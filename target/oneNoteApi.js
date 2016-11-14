@@ -291,6 +291,31 @@ var OneNoteApi = (function (_super) {
         return this.requestPromise(url, form.asBlob(), form.getContentType());
     };
     /**
+     * BatchRequests
+     **/
+    OneNoteApi.prototype.batchRequests = function (batchRequests) {
+        this.enableBetaApi();
+        var boundaryName = "batch_" + Math.floor(Math.random() * 1000);
+        var contentType = "Content-Type: application/http";
+        var contentTransferEncoding = "Content-Transfer-Encoding: binary";
+        var data = "";
+        batchRequests.forEach(function (batchRequest) {
+            var req = "";
+            req += "--" + boundaryName + "\r\n";
+            req += "Content-Type: application/http" + "\r\n";
+            req += "Content-Transfer-Encoding: binary" + "\r\n";
+            req += "\r\n";
+            req += batchRequest.httpMethod + " " + batchRequest.uri + " " + "HTTP/1.1" + "\r\n";
+            req += "Content-Type: " + batchRequest.contentType + "\r\n";
+            req += "\r\n";
+            req += batchRequest.content + "\r\n";
+            req += "\r\n";
+            data += req;
+        });
+        data += "--" + boundaryName + "--\r\n";
+        return this.requestBasePromise("/$batch", data, 'multipart/mixed; boundary="' + boundaryName + '"', "POST").then(this.disableBetaApi.bind(this));
+    };
+    /**
      * GetPage
      */
     OneNoteApi.prototype.getPage = function (pageId) {
@@ -353,31 +378,6 @@ var OneNoteApi = (function (_super) {
     */
     OneNoteApi.prototype.pagesSearch = function (query) {
         return this.requestPromise(this.getSearchUrl(query));
-    };
-    /**
-     * BatchRequests
-     **/
-    OneNoteApi.prototype.batchRequests = function (batchRequests) {
-        this.enableBetaApi();
-        var boundaryName = "batch_" + Math.floor(Math.random() * 1000);
-        var contentType = "Content-Type: application/http";
-        var contentTransferEncoding = "Content-Transfer-Encoding: binary";
-        var data = "";
-        batchRequests.forEach(function (batchRequest) {
-            var req = "";
-            req += "--" + boundaryName + "\r\n";
-            req += "Content-Type: application/http" + "\r\n";
-            req += "Content-Transfer-Encoding: binary" + "\r\n";
-            req += "\r\n";
-            req += batchRequest.httpMethod + " " + batchRequest.uri + " " + "HTTP/1.1" + "\r\n";
-            req += "Content-Type: " + batchRequest.contentType + "\r\n";
-            req += "\r\n";
-            req += batchRequest.content + "\r\n";
-            req += "\r\n";
-            data += req;
-        });
-        data += "--" + boundaryName + "--\r\n";
-        return this.requestBasePromise("/$batch", data, 'multipart/mixed; boundary="' + boundaryName + '"', "POST").then(this.disableBetaApi.bind(this));
     };
     /**
     * GetExpands

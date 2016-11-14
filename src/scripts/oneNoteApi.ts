@@ -34,6 +34,40 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	}
 
 	/**
+	 * BatchRequests
+	 **/
+	public batchRequests(batchRequests: BatchRequest[]) {
+		this.enableBetaApi();
+		let boundaryName = "batch_" + Math.floor(Math.random() * 1000);
+		let contentType = "Content-Type: application/http";
+		let contentTransferEncoding = "Content-Transfer-Encoding: binary";
+
+		let data = "";
+		batchRequests.forEach((batchRequest) => {
+			let req = "";
+			req += "--" + boundaryName + "\r\n";
+			req += "Content-Type: application/http" + "\r\n";
+			req += "Content-Transfer-Encoding: binary" + "\r\n";
+
+			req += "\r\n";
+
+			req += batchRequest.httpMethod + " " + batchRequest.uri + " " + "HTTP/1.1" + "\r\n";
+			req += "Content-Type: " + batchRequest.contentType + "\r\n";
+
+			req += "\r\n";
+
+			req += batchRequest.content + "\r\n";
+
+			req += "\r\n";
+
+			data += req;
+		});
+		data += "--" + boundaryName + "--\r\n";
+
+		return this.requestBasePromise("/$batch", data, 'multipart/mixed; boundary="' + boundaryName + '"', "POST").then(this.disableBetaApi.bind(this));
+	}
+
+	/**
 	 * GetPage
 	 */
 	public getPage(pageId: string): Promise<ResponsePackage<any>> {
@@ -106,40 +140,6 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	*/
 	public pagesSearch(query: string): Promise<ResponsePackage<any>> {
 		return this.requestPromise(this.getSearchUrl(query));
-	}
-
-	/**
-	 * BatchRequests
-	 **/
-	public batchRequests(batchRequests: BatchRequest[]) {
-		this.enableBetaApi();
-		let boundaryName = "batch_" + Math.floor(Math.random() * 1000);
-		let contentType = "Content-Type: application/http";
-		let contentTransferEncoding = "Content-Transfer-Encoding: binary";
-
-		let data = "";
-		batchRequests.forEach((batchRequest) => {
-			let req = "";
-			req += "--" + boundaryName + "\r\n";
-			req += "Content-Type: application/http" + "\r\n";
-			req += "Content-Transfer-Encoding: binary" + "\r\n";
-
-			req += "\r\n";
-
-			req += batchRequest.httpMethod + " " + batchRequest.uri + " " + "HTTP/1.1" + "\r\n";
-			req += "Content-Type: " + batchRequest.contentType + "\r\n";
-
-			req += "\r\n";
-
-			req += batchRequest.content + "\r\n";
-
-			req += "\r\n";
-
-			data += req;
-		});
-		data += "--" + boundaryName + "--\r\n";
-
-		return this.requestBasePromise("/$batch", data, 'multipart/mixed; boundary="' + boundaryName + '"', "POST").then(this.disableBetaApi.bind(this));
 	}
 
 	/**
