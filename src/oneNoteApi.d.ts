@@ -122,9 +122,9 @@ declare namespace OneNoteApi {
 		pagesSearch(query: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError>;
 
 		/**
-		 * BatchRequests
+		 * SendBatchRequest
 		 */
-		batchRequests(batchRequests: BatchRequest[]): Promise<ResponsePackage<any> | OneNoteApi.RequestError>;
+		sendBatchRequest(batchRequest: BatchRequest): Promise<ResponsePackage<any> | OneNoteApi.RequestError>;
 	}
 
 	interface Identifyable {
