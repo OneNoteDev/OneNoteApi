@@ -77,11 +77,6 @@ declare namespace OneNoteApi {
 		createPage(page: OneNotePage, sectionId?: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError>;
 
 		/**
-		 * BatchRequest
-		 */
-		batchRequest(batchRequests: BatchRequest[]): Promise<ResponsePackage<any> | OneNoteApi.RequestError>;
-
-		/**
 		 * GetPage
 		 */
 		getPage(pageId: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError>;
@@ -121,7 +116,7 @@ declare namespace OneNoteApi {
 		 */
 		getNotebookByName(name: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError>;
 
-		/**s
+		/**
 		 * PagesSearch
 		 */
 		pagesSearch(query: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError>;

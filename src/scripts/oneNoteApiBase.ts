@@ -24,11 +24,10 @@ export class OneNoteApiBase {
 	private timeout: number;
 	private headers: { [key: string]: string };
 
-	constructor(token: string, timeout: number, headers: { [key: string]: string } = {}, useBetaApi?: boolean) {
+	constructor(token: string, timeout: number, headers: { [key: string]: string } = {}) {
 		this.token = token;
 		this.timeout = timeout;
 		this.headers = headers;
-		this.useBetaApi = useBetaApi ? useBetaApi : this.useBetaApi;
 	}
 
 	public requestBasePromise(partialUrl: string, data?: XHRData, contentType?: string, httpMethod?: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {

@@ -447,14 +447,13 @@ var ContentType = require("content-type");
 * Base communication layer for talking to the OneNote APIs.
 */
 var OneNoteApiBase = (function () {
-    function OneNoteApiBase(token, timeout, headers, useBetaApi) {
+    function OneNoteApiBase(token, timeout, headers) {
         if (headers === void 0) { headers = {}; }
         // Whether or not the OneNote Beta APIs should be used.
         this.useBetaApi = false;
         this.token = token;
         this.timeout = timeout;
         this.headers = headers;
-        this.useBetaApi = useBetaApi ? useBetaApi : this.useBetaApi;
     }
     OneNoteApiBase.prototype.requestBasePromise = function (partialUrl, data, contentType, httpMethod) {
         var fullUrl = this.generateFullBaseUrl(partialUrl);

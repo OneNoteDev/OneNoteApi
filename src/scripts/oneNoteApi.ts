@@ -3,8 +3,6 @@ import {OneNoteApiBase, ResponsePackage} from "./oneNoteApiBase";
 import {OneNotePage} from "./oneNotePage";
 import {Revision, BatchRequest} from "./structuredTypes";
 
-declare function require(name: string);
-
 /**
 * Wrapper for easier calling of the OneNote APIs.
 */
