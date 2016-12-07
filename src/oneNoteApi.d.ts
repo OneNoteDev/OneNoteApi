@@ -157,7 +157,7 @@ declare namespace OneNoteApi {
 	export interface IOneNoteApi {
 		createNotebook(name: string): Promise<ResponsePackage<any>>;
 		createPage(page: OneNotePage, sectionId?: string): Promise<ResponsePackage<any>>;
-		batchRequests(batchRequests: BatchRequest[]): Promise<ResponsePackage<any>>;
+		sendBatchRequests(batchRequest: BatchRequest): Promise<ResponsePackage<any>>;
 		getPage(pageId: string): Promise<ResponsePackage<any>>;
 		getPageContent(pageId: string): Promise<ResponsePackage<any>>;
 		getPages(options: { top?: number, sectionId?: string }): Promise<ResponsePackage<any>>;

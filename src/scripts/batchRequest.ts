@@ -1,9 +1,9 @@
 import {BatchRequestOperation} from "./structuredTypes";
 
 /**
- * The BatchRequest class consists of multiple operations that the user wants to group together.
- * Each operation is a separate request, described in the Operation interface. The BATCH API allows
- * a user to send many operations in one request, and the backend can sometimes optimize these
+ * The BATCH API allows user to submit multiple requests in a single request. For example, a PATCH to two different pages.
+ * Each operation is a separate request, described in the BatchRequestOperation interface.
+ * To use, create a BatchRequest and use BatchRequest::addOperation(...) to build up an operation and then send it.
  */
 export class BatchRequest {
 	private operations: BatchRequestOperation[];
@@ -17,6 +17,10 @@ export class BatchRequest {
 
 	public addOperation(op: BatchRequestOperation) {
 		this.operations.push(op);
+	}
+
+	public getOperation(index: number) {
+		return this.operations[index];
 	}
 
 	public getRequestBody(): string {
