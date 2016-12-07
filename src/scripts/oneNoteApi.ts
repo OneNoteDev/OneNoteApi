@@ -33,7 +33,7 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	}
 
 	/**
-	 * sendbatchRequests
+	 * SendbatchRequest
 	 **/
 	public sendBatchRequest(batchRequest: BatchRequest) {
 		this.enableBetaApi();

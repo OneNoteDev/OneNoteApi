@@ -38,6 +38,12 @@ var BatchRequest = (function () {
     BatchRequest.prototype.getOperation = function (index) {
         return this.operations[index];
     };
+    BatchRequest.prototype.getOperations = function () {
+        return this.operations;
+    };
+    BatchRequest.prototype.getNumOperations = function () {
+        return this.operations.length;
+    };
     BatchRequest.prototype.getRequestBody = function () {
         // There are separate functions for creating the request body and returning it to the caller
         // It is possible to cache this result, but a user could add on operation, and we would have to recompute it
@@ -341,7 +347,7 @@ var OneNoteApi = (function (_super) {
         return this.requestPromise(url, form.asBlob(), form.getContentType());
     };
     /**
-     * sendbatchRequests
+     * SendbatchRequest
      **/
     OneNoteApi.prototype.sendBatchRequest = function (batchRequest) {
         this.enableBetaApi();

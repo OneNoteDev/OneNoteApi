@@ -60,6 +60,22 @@ declare namespace OneNoteApi {
 		addCitation(format: string, urlToDisplay: string, rawUrl?: string);
 	}
 
+	export class BatchRequest {
+		constructor();
+
+		public addOperation(op: BatchRequestOperation): void;
+
+		public getOperation(index: number): BatchRequestOperation;
+
+		public getOperations(): BatchRequestOperation[];
+
+		public getNumOperations(): number;
+
+		public getRequestBody(): string;
+
+		public getContentType(): string;
+	}
+
 	/**
 	 * Wrapper for easier calling of the OneNote APIs.
 	 */
@@ -157,7 +173,7 @@ declare namespace OneNoteApi {
 	export interface IOneNoteApi {
 		createNotebook(name: string): Promise<ResponsePackage<any>>;
 		createPage(page: OneNotePage, sectionId?: string): Promise<ResponsePackage<any>>;
-		sendBatchRequests(batchRequest: BatchRequest): Promise<ResponsePackage<any>>;
+		sendBatchRequest(batchRequest: BatchRequest): Promise<ResponsePackage<any>>;
 		getPage(pageId: string): Promise<ResponsePackage<any>>;
 		getPageContent(pageId: string): Promise<ResponsePackage<any>>;
 		getPages(options: { top?: number, sectionId?: string }): Promise<ResponsePackage<any>>;
@@ -176,7 +192,7 @@ declare namespace OneNoteApi {
 		position?: string;
 	}
 
-	export interface BatchRequest {
+	export interface BatchRequestOperation {
 		httpMethod: string;
 		uri: string;
 		contentType: string;

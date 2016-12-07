@@ -15,12 +15,20 @@ export class BatchRequest {
 		this.boundaryName = "batch_" + Math.floor(Math.random() * 1000);
 	}
 
-	public addOperation(op: BatchRequestOperation) {
+	public addOperation(op: BatchRequestOperation): void {
 		this.operations.push(op);
 	}
 
-	public getOperation(index: number) {
+	public getOperation(index: number): BatchRequestOperation {
 		return this.operations[index];
+	}
+
+	public getOperations(): BatchRequestOperation[] {
+		return this.operations;
+	}
+
+	public getNumOperations(): number {
+		return this.operations.length;
 	}
 
 	public getRequestBody(): string {
