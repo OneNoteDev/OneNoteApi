@@ -21,6 +21,54 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.OneNoteApi = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+"use strict";
+/**
+ * The BATCH API allows a user to execute multiple OneNoteApi actions in a single HTTP request.
+ * For example, sending two PATCHES in the same HTTP request
+ * To use, construct a new BatchRequest and then pass in an object that adheres to the BatchRequestOperation interface into
+ * 	BatchRequest::addOperation(...). Once the request is built, send it using OneNoteApi::sendBatchRequest(...)
+ */
+var BatchRequest = (function () {
+    function BatchRequest() {
+        this.operations = [];
+        this.boundaryName = "batch_" + Math.floor(Math.random() * 1000);
+    }
+    BatchRequest.prototype.addOperation = function (op) {
+        this.operations.push(op);
+    };
+    BatchRequest.prototype.getOperation = function (index) {
+        return this.operations[index];
+    };
+    BatchRequest.prototype.getNumOperations = function () {
+        return this.operations.length;
+    };
+    BatchRequest.prototype.getRequestBody = function () {
+        var _this = this;
+        var data = "";
+        this.operations.forEach(function (operation) {
+            var req = "";
+            req += "--" + _this.boundaryName + "\r\n";
+            req += "Content-Type: application/http" + "\r\n";
+            req += "Content-Transfer-Encoding: binary" + "\r\n";
+            req += "\r\n";
+            req += operation.httpMethod + " " + operation.uri + " " + "HTTP/1.1" + "\r\n";
+            req += "Content-Type: " + operation.contentType + "\r\n";
+            req += "\r\n";
+            req += (operation.content ? operation.content : "") + "\r\n";
+            req += "\r\n";
+            data += req;
+        });
+        data += "--" + this.boundaryName + "--\r\n";
+        return data;
+    };
+    BatchRequest.prototype.getContentType = function () {
+        return 'multipart/mixed; boundary="' + this.boundaryName + '"';
+    };
+    return BatchRequest;
+}());
+exports.BatchRequest = BatchRequest;
+
+},{}],2:[function(require,module,exports){
 /*--------------------------------------------------------------------------
    Definitions of the supported ContentTypes.
  -------------------------------------------------------------------------*/
@@ -34,7 +82,7 @@ SOFTWARE.
 })(exports.ContentType || (exports.ContentType = {}));
 var ContentType = exports.ContentType;
 
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 /// <reference path="../oneNoteApi.d.ts"/>
 "use strict";
 (function (RequestErrorType) {
@@ -117,7 +165,7 @@ var ErrorUtils = (function () {
 }());
 exports.ErrorUtils = ErrorUtils;
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 /// <reference path="../oneNoteApi.d.ts"/>
 "use strict";
 var NotebookUtils = (function () {
@@ -256,7 +304,7 @@ var NotebookUtils = (function () {
 }());
 exports.NotebookUtils = NotebookUtils;
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -289,6 +337,13 @@ var OneNoteApi = (function (_super) {
         var url = sectionPath + "/pages";
         var form = page.getTypedFormData();
         return this.requestPromise(url, form.asBlob(), form.getContentType());
+    };
+    /**
+     * SendBatchRequest
+     **/
+    OneNoteApi.prototype.sendBatchRequest = function (batchRequest) {
+        this.enableBetaApi();
+        return this.requestBasePromise("/$batch", batchRequest.getRequestBody(), batchRequest.getContentType(), "POST").then(this.disableBetaApi.bind(this));
     };
     /**
      * GetPage
@@ -386,6 +441,18 @@ var OneNoteApi = (function (_super) {
     OneNoteApi.prototype.getSearchUrl = function (query) {
         return "/pages?search=" + query;
     };
+    /**
+     * Helper Method to use beta features OR to use beta endpoints
+     */
+    OneNoteApi.prototype.enableBetaApi = function () {
+        this.useBetaApi = true;
+    };
+    /**
+     * Helper method to turn off beta features OR endpoints
+     */
+    OneNoteApi.prototype.disableBetaApi = function () {
+        this.useBetaApi = false;
+    };
     return OneNoteApi;
 }(oneNoteApiBase_1.OneNoteApiBase));
 exports.OneNoteApi = OneNoteApi;
@@ -393,13 +460,15 @@ var contentType_1 = require("./contentType");
 exports.ContentType = contentType_1.ContentType;
 var oneNotePage_1 = require("./oneNotePage");
 exports.OneNotePage = oneNotePage_1.OneNotePage;
+var batchRequest_1 = require("./batchRequest");
+exports.BatchRequest = batchRequest_1.BatchRequest;
 var errorUtils_1 = require("./errorUtils");
 exports.ErrorUtils = errorUtils_1.ErrorUtils;
 exports.RequestErrorType = errorUtils_1.RequestErrorType;
 var notebookUtils_1 = require("./notebookUtils");
 exports.NotebookUtils = notebookUtils_1.NotebookUtils;
 
-},{"./contentType":1,"./errorUtils":2,"./notebookUtils":3,"./oneNoteApiBase":5,"./oneNotePage":6}],5:[function(require,module,exports){
+},{"./batchRequest":1,"./contentType":2,"./errorUtils":3,"./notebookUtils":4,"./oneNoteApiBase":6,"./oneNotePage":7}],6:[function(require,module,exports){
 /// <reference path="../definitions/es6-promise/es6-promise.d.ts"/>
 /// <reference path="../oneNoteApi.d.ts"/>
 /// <reference path="../definitions/content-type/content-type.d.ts"/>
@@ -418,6 +487,13 @@ var OneNoteApiBase = (function () {
         this.timeout = timeout;
         this.headers = headers;
     }
+    OneNoteApiBase.prototype.requestBasePromise = function (partialUrl, data, contentType, httpMethod) {
+        var fullUrl = this.generateFullBaseUrl(partialUrl);
+        if (contentType === null) {
+            contentType = "application/json";
+        }
+        return this.makeRequest(fullUrl, data, contentType, httpMethod);
+    };
     OneNoteApiBase.prototype.requestPromise = function (partialUrl, data, contentType, httpMethod) {
         var _this = this;
         var fullUrl = this.generateFullUrl(partialUrl);
@@ -431,6 +507,10 @@ var OneNoteApiBase = (function () {
                 reject(error);
             });
         }));
+    };
+    OneNoteApiBase.prototype.generateFullBaseUrl = function (partialUrl) {
+        var apiRootUrl = this.useBetaApi ? "https://www.onenote.com/api/beta" : "https://www.onenote.com/api/v1.0";
+        return apiRootUrl + partialUrl;
     };
     OneNoteApiBase.prototype.generateFullUrl = function (partialUrl) {
         var apiRootUrl = this.useBetaApi ? "https://www.onenote.com/api/beta/me/notes" : "https://www.onenote.com/api/v1.0/me/notes";
@@ -505,7 +585,7 @@ var OneNoteApiBase = (function () {
 }());
 exports.OneNoteApiBase = OneNoteApiBase;
 
-},{"./errorUtils":2,"content-type":8}],6:[function(require,module,exports){
+},{"./errorUtils":3,"content-type":9}],7:[function(require,module,exports){
 "use strict";
 var typedFormData_1 = require("./typedFormData");
 /**
@@ -627,7 +707,7 @@ var OneNotePage = (function () {
 }());
 exports.OneNotePage = OneNotePage;
 
-},{"./typedFormData":7}],7:[function(require,module,exports){
+},{"./typedFormData":8}],8:[function(require,module,exports){
 "use strict";
 // A substitute for FormData that allows the ability to set content-type per part
 var TypedFormData = (function () {
@@ -662,7 +742,7 @@ var TypedFormData = (function () {
 }());
 exports.TypedFormData = TypedFormData;
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 /*!
  * content-type
  * Copyright(c) 2015 Douglas Christopher Wilson
@@ -880,5 +960,5 @@ function ContentType(type) {
   this.type = type
 }
 
-},{}]},{},[4])(4)
+},{}]},{},[5])(5)
 });

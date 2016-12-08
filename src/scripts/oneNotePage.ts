@@ -25,7 +25,7 @@ export class OneNotePage {
 	/**
 	 * Includes everything inside and including the <html> tags
 	 */
-	private getEntireOnml(): string {
+	public getEntireOnml(): string {
 		return '<html xmlns="http://www.w3.org/1999/xhtml" lang=' + this.locale + ">" +
 			this.getHeadAsHtml() +
 			"<body>" + this.presentationBody + "</body></html>";

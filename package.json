@@ -1,5 +1,5 @@
 {
-  "version": "1.0.6",
+  "version": "1.1.0",
   "name": "onenoteapi",
   "description": "JavaScript library to make calling the OneNote API easier.",
   "main": "target/modules/oneNoteApi.js",

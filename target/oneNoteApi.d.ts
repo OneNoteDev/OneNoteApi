@@ -39,6 +39,8 @@ declare namespace OneNoteApi {
 			[key: string]: string;
 		});
 
+		getEntireOnml(): string;
+
 		escapeHtmlEntities(value: string): string;
 
 		getTypedFormData(): TypedFormData;
@@ -56,6 +58,20 @@ declare namespace OneNoteApi {
 		addUrl(url: string);
 
 		addCitation(format: string, urlToDisplay: string, rawUrl?: string);
+	}
+
+	export class BatchRequest {
+		constructor();
+
+		public addOperation(op: BatchRequestOperation): void;
+
+		public getOperation(index: number): BatchRequestOperation;
+
+		public getNumOperations(): number;
+
+		public getRequestBody(): string;
+
+		public getContentType(): string;
 	}
 
 	/**
@@ -118,6 +134,11 @@ declare namespace OneNoteApi {
 		 * PagesSearch
 		 */
 		pagesSearch(query: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError>;
+
+		/**
+		 * SendBatchRequest
+		 */
+		sendBatchRequest(batchRequest: BatchRequest): Promise<ResponsePackage<any> | OneNoteApi.RequestError>;
 	}
 
 	interface Identifyable {
@@ -150,6 +171,7 @@ declare namespace OneNoteApi {
 	export interface IOneNoteApi {
 		createNotebook(name: string): Promise<ResponsePackage<any>>;
 		createPage(page: OneNotePage, sectionId?: string): Promise<ResponsePackage<any>>;
+		sendBatchRequest(batchRequest: BatchRequest): Promise<ResponsePackage<any>>;
 		getPage(pageId: string): Promise<ResponsePackage<any>>;
 		getPageContent(pageId: string): Promise<ResponsePackage<any>>;
 		getPages(options: { top?: number, sectionId?: string }): Promise<ResponsePackage<any>>;
@@ -167,6 +189,14 @@ declare namespace OneNoteApi {
 		content: string;
 		position?: string;
 	}
+
+	export interface BatchRequestOperation {
+		httpMethod: string;
+		uri: string;
+		contentType: string;
+		content?: string;
+	}
+
 
 	export interface Notebook extends Identifyable, HistoryTime, HistoryBy, SectionAndSectionGroupParent {
 		name: string;

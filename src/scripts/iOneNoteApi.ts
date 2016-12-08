@@ -1,10 +1,12 @@
 import {ResponsePackage} from "./oneNoteApiBase";
 import {OneNotePage} from "./oneNotePage";
+import {BatchRequest} from "./batchRequest";
 import {Revision} from "./structuredTypes";
 
 export interface IOneNoteApi {
 	createNotebook(name: string): Promise<ResponsePackage<any>>;
 	createPage(page: OneNotePage, sectionId?: string): Promise<ResponsePackage<any>>;
+	sendBatchRequest(batchRequest: BatchRequest): Promise<ResponsePackage<any>>;
 	getPage(pageId: string): Promise<ResponsePackage<any>>;
 	getPageContent(pageId: string): Promise<ResponsePackage<any>>;
 	getPages(options: { top?: number, sectionId?: string }): Promise<ResponsePackage<any>>;

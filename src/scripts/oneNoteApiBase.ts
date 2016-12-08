@@ -30,6 +30,16 @@ export class OneNoteApiBase {
 		this.headers = headers;
 	}
 
+	public requestBasePromise(partialUrl: string, data?: XHRData, contentType?: string, httpMethod?: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
+		let fullUrl = this.generateFullBaseUrl(partialUrl);
+
+		if (contentType === null) {
+			contentType = "application/json";
+		}
+
+		return this.makeRequest(fullUrl, data, contentType, httpMethod);
+	}
+
 	protected requestPromise(partialUrl: string, data?: XHRData, contentType?: string, httpMethod?: string): Promise<ResponsePackage<any>> {
 		let fullUrl = this.generateFullUrl(partialUrl);
 
@@ -46,7 +56,12 @@ export class OneNoteApiBase {
 		}));
 	}
 
-	private generateFullUrl(partialUrl: string): string {
+	public generateFullBaseUrl(partialUrl: string): string {
+		let apiRootUrl: string = this.useBetaApi ? "https://www.onenote.com/api/beta" : "https://www.onenote.com/api/v1.0";
+		return apiRootUrl + partialUrl;
+	}
+
+	public generateFullUrl(partialUrl: string): string {
 		let apiRootUrl: string = this.useBetaApi ? "https://www.onenote.com/api/beta/me/notes" : "https://www.onenote.com/api/v1.0/me/notes";
 		return apiRootUrl + partialUrl;
 	}

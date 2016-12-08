@@ -1,6 +1,7 @@
 import {IOneNoteApi} from "./iOneNoteApi";
 import {OneNoteApiBase, ResponsePackage} from "./oneNoteApiBase";
 import {OneNotePage} from "./oneNotePage";
+import {BatchRequest} from "./batchRequest";
 import {Revision} from "./structuredTypes";
 
 /**
@@ -29,6 +30,14 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 		let form = page.getTypedFormData();
 
 		return this.requestPromise(url, form.asBlob(), form.getContentType());
+	}
+
+	/**
+	 * SendBatchRequest
+	 **/
+	public sendBatchRequest(batchRequest: BatchRequest) {
+		this.enableBetaApi();
+		return this.requestBasePromise("/$batch", batchRequest.getRequestBody(), batchRequest.getContentType(), "POST").then(this.disableBetaApi.bind(this));
 	}
 
 	/**
@@ -141,9 +150,24 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	private getSearchUrl(query: string): string {
 		return "/pages?search=" + query;
 	}
+
+	/**
+	 * Helper Method to use beta features OR to use beta endpoints
+	 */
+	private enableBetaApi() {
+		this.useBetaApi = true;
+	}
+
+	/**
+	 * Helper method to turn off beta features OR endpoints
+	 */
+	private disableBetaApi() {
+		this.useBetaApi = false;
+	}
 }
 
 export {ContentType} from "./contentType";
 export {OneNotePage} from "./oneNotePage";
+export {BatchRequest} from "./batchRequest";
 export {ErrorUtils, RequestErrorType} from "./errorUtils";
 export {NotebookUtils} from "./notebookUtils";

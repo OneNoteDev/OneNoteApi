@@ -41,6 +41,13 @@ export module Revision {
 	}
 }
 
+export interface BatchRequestOperation {
+	httpMethod: string;
+	uri: string;
+	contentType: string;
+	content?: string;
+}
+
 export interface Revision {
 	target: string;
 	action: Revision.Action;
