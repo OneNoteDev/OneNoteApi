@@ -1,9 +1,10 @@
 import {BatchRequestOperation} from "./structuredTypes";
 
 /**
- * The BATCH API allows user to submit multiple requests in a single request. For example, a PATCH to two different pages.
- * Each operation is a separate request, described in the BatchRequestOperation interface.
- * To use, create a BatchRequest and use BatchRequest::addOperation(...) to build up an operation and then send it.
+ * The BATCH API allows a user to execute multiple OneNoteApi actions in a single HTTP request.
+ * For example, sending two PATCHES in the same HTTP request
+ * To use, construct a new BatchRequest and then pass in an object that adheres to the BatchRequestOperation interface into
+ * 	BatchRequest::addOperation(...). Once the request is built, send it using OneNoteApi::sendBatchRequest(...)
  */
 export class BatchRequest {
 	private operations: BatchRequestOperation[];
@@ -32,9 +33,6 @@ export class BatchRequest {
 	}
 
 	public getRequestBody(): string {
-		// There are separate functions for creating the request body and returning it to the caller
-		// It is possible to cache this result, but a user could add on operation, and we would have to recompute it
-		// So for now, we take the simple road and compute it on demand
 		return this.convertOperationsToHttpRequestBody();
 	}
 
