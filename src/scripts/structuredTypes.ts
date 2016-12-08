@@ -41,7 +41,7 @@ export module Revision {
 	}
 }
 
-export interface BatchRequest {
+export interface BatchRequestOperation {
 	httpMethod: string;
 	uri: string;
 	contentType: string;

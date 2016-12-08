@@ -1,7 +1,8 @@
 import {IOneNoteApi} from "./iOneNoteApi";
 import {OneNoteApiBase, ResponsePackage} from "./oneNoteApiBase";
 import {OneNotePage} from "./oneNotePage";
-import {Revision, BatchRequest} from "./structuredTypes";
+import {BatchRequest} from "./batchRequest";
+import {Revision} from "./structuredTypes";
 
 /**
 * Wrapper for easier calling of the OneNote APIs.
@@ -32,37 +33,11 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	}
 
 	/**
-	 * BatchRequests
+	 * SendBatchRequest
 	 **/
-	public batchRequests(batchRequests: BatchRequest[]) {
+	public sendBatchRequest(batchRequest: BatchRequest) {
 		this.enableBetaApi();
-		let boundaryName = "batch_" + Math.floor(Math.random() * 1000);
-		let contentType = "Content-Type: application/http";
-		let contentTransferEncoding = "Content-Transfer-Encoding: binary";
-
-		let data = "";
-		batchRequests.forEach((batchRequest) => {
-			let req = "";
-			req += "--" + boundaryName + "\r\n";
-			req += "Content-Type: application/http" + "\r\n";
-			req += "Content-Transfer-Encoding: binary" + "\r\n";
-
-			req += "\r\n";
-
-			req += batchRequest.httpMethod + " " + batchRequest.uri + " " + "HTTP/1.1" + "\r\n";
-			req += "Content-Type: " + batchRequest.contentType + "\r\n";
-
-			req += "\r\n";
-
-			req += batchRequest.content + "\r\n";
-
-			req += "\r\n";
-
-			data += req;
-		});
-		data += "--" + boundaryName + "--\r\n";
-
-		return this.requestBasePromise("/$batch", data, 'multipart/mixed; boundary="' + boundaryName + '"', "POST").then(this.disableBetaApi.bind(this));
+		return this.requestBasePromise("/$batch", batchRequest.getRequestBody(), batchRequest.getContentType(), "POST").then(this.disableBetaApi.bind(this));
 	}
 
 	/**
@@ -193,5 +168,6 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 
 export {ContentType} from "./contentType";
 export {OneNotePage} from "./oneNotePage";
+export {BatchRequest} from "./batchRequest";
 export {ErrorUtils, RequestErrorType} from "./errorUtils";
 export {NotebookUtils} from "./notebookUtils";
