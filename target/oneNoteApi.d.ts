@@ -67,8 +67,6 @@ declare namespace OneNoteApi {
 
 		public getOperation(index: number): BatchRequestOperation;
 
-		public getOperations(): BatchRequestOperation[];
-
 		public getNumOperations(): number;
 
 		public getRequestBody(): string;

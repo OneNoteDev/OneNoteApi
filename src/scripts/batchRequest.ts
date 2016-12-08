@@ -24,19 +24,11 @@ export class BatchRequest {
 		return this.operations[index];
 	}
 
-	public getOperations(): BatchRequestOperation[] {
-		return this.operations;
-	}
-
 	public getNumOperations(): number {
 		return this.operations.length;
 	}
 
 	public getRequestBody(): string {
-		return this.convertOperationsToHttpRequestBody();
-	}
-
-	private convertOperationsToHttpRequestBody(): string {
 		let data = "";
 		this.operations.forEach((operation) => {
 			let req = "";

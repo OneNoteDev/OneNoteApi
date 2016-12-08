@@ -39,16 +39,10 @@ var BatchRequest = (function () {
     BatchRequest.prototype.getOperation = function (index) {
         return this.operations[index];
     };
-    BatchRequest.prototype.getOperations = function () {
-        return this.operations;
-    };
     BatchRequest.prototype.getNumOperations = function () {
         return this.operations.length;
     };
     BatchRequest.prototype.getRequestBody = function () {
-        return this.convertOperationsToHttpRequestBody();
-    };
-    BatchRequest.prototype.convertOperationsToHttpRequestBody = function () {
         var _this = this;
         var data = "";
         this.operations.forEach(function (operation) {
