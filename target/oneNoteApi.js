@@ -23,9 +23,10 @@ SOFTWARE.
 */(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.OneNoteApi = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 "use strict";
 /**
- * The BATCH API allows user to submit multiple requests in a single request. For example, a PATCH to two different pages.
- * Each operation is a separate request, described in the BatchRequestOperation interface.
- * To use, create a BatchRequest and use BatchRequest::addOperation(...) to build up an operation and then send it.
+ * The BATCH API allows a user to execute multiple OneNoteApi actions in a single HTTP request.
+ * For example, sending two PATCHES in the same HTTP request
+ * To use, construct a new BatchRequest and then pass in an object that adheres to the BatchRequestOperation interface into
+ * 	BatchRequest::addOperation(...). Once the request is built, send it using OneNoteApi::sendBatchRequest(...)
  */
 var BatchRequest = (function () {
     function BatchRequest() {
@@ -45,9 +46,6 @@ var BatchRequest = (function () {
         return this.operations.length;
     };
     BatchRequest.prototype.getRequestBody = function () {
-        // There are separate functions for creating the request body and returning it to the caller
-        // It is possible to cache this result, but a user could add on operation, and we would have to recompute it
-        // So for now, we take the simple road and compute it on demand
         return this.convertOperationsToHttpRequestBody();
     };
     BatchRequest.prototype.convertOperationsToHttpRequestBody = function () {
@@ -347,7 +345,7 @@ var OneNoteApi = (function (_super) {
         return this.requestPromise(url, form.asBlob(), form.getContentType());
     };
     /**
-     * SendbatchRequest
+     * SendBatchRequest
      **/
     OneNoteApi.prototype.sendBatchRequest = function (batchRequest) {
         this.enableBetaApi();
