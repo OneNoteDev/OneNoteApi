@@ -96,7 +96,7 @@ var ErrorUtils = (function () {
     function ErrorUtils() {
     }
     ErrorUtils.createRequestErrorObject = function (request, errorType) {
-        if (request === undefined || request === null) {
+        if (request === undefined) {
             return;
         }
         return ErrorUtils.createRequestErrorObjectInternal(request.status, request.readyState, request.response, request.getAllResponseHeaders(), request.timeout, errorType);
@@ -128,7 +128,7 @@ var ErrorUtils = (function () {
         return requestErrorObject;
     };
     ErrorUtils.convertResponseHeadersToJson = function (request) {
-        if (request === undefined || request === null) {
+        if (request === undefined) {
             return;
         }
         var responseHeaders = request.getAllResponseHeaders();
@@ -313,8 +313,8 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var oneNoteApiBase_1 = require("./oneNoteApiBase");
 /**
-* Wrapper for easier calling of the OneNote APIs.
-*/
+ * Wrapper for easier calling of the OneNote APIs.
+ */
 var OneNoteApi = (function (_super) {
     __extends(OneNoteApi, _super);
     function OneNoteApi(token, timeout, headers) {
@@ -323,15 +323,15 @@ var OneNoteApi = (function (_super) {
         return _super.call(this, token, timeout, headers) || this;
     }
     /**
-    * CreateNotebook
-    */
+     * CreateNotebook
+     */
     OneNoteApi.prototype.createNotebook = function (name) {
         var data = JSON.stringify({ name: name });
         return this.requestPromise(this.getNotebooksUrl(), data);
     };
     /**
-    * CreatePage
-    */
+     * CreatePage
+     */
     OneNoteApi.prototype.createPage = function (page, sectionId) {
         var sectionPath = sectionId ? "/sections/" + sectionId : "";
         var url = sectionPath + "/pages";
@@ -340,7 +340,7 @@ var OneNoteApi = (function (_super) {
     };
     /**
      * SendBatchRequest
-     **/
+     */
     OneNoteApi.prototype.sendBatchRequest = function (batchRequest) {
         this.enableBetaApi();
         return this.requestBasePromise("/$batch", batchRequest.getRequestBody(), batchRequest.getContentType(), "POST").then(this.disableBetaApi.bind(this));
@@ -352,10 +352,16 @@ var OneNoteApi = (function (_super) {
         var pagePath = "/pages/" + pageId;
         return this.requestPromise(pagePath);
     };
+    /**
+     * getPageContent
+     */
     OneNoteApi.prototype.getPageContent = function (pageId) {
         var pagePath = "/pages/" + pageId + "/content";
         return this.requestPromise(pagePath);
     };
+    /**
+     * GetPages
+     */
     OneNoteApi.prototype.getPages = function (options) {
         var pagePath = "/pages";
         if (options.top > 0 && options.top === Math.floor(options.top)) {
@@ -375,48 +381,48 @@ var OneNoteApi = (function (_super) {
         return this.requestPromise(url, JSON.stringify(revisions), "application/json", "PATCH");
     };
     /**
-    * CreateSection
-    */
+     * CreateSection
+     */
     OneNoteApi.prototype.createSection = function (notebookId, name) {
         var obj = { name: name };
         var data = JSON.stringify(obj);
         return this.requestPromise("/notebooks/" + notebookId + "/sections/", data);
     };
     /**
-    * GetNotebooks
-    */
+     * GetNotebooks
+     */
     OneNoteApi.prototype.getNotebooks = function (excludeReadOnlyNotebooks) {
         if (excludeReadOnlyNotebooks === void 0) { excludeReadOnlyNotebooks = true; }
-        return this.requestPromise(this.getNotebooksUrl(null /*expands*/, excludeReadOnlyNotebooks));
+        return this.requestPromise(this.getNotebooksUrl(undefined /*expands*/, excludeReadOnlyNotebooks));
     };
     /**
-    * GetNotebooksWithExpandedSections
-    */
+     * GetNotebooksWithExpandedSections
+     */
     OneNoteApi.prototype.getNotebooksWithExpandedSections = function (expands, excludeReadOnlyNotebooks) {
         if (expands === void 0) { expands = 2; }
         if (excludeReadOnlyNotebooks === void 0) { excludeReadOnlyNotebooks = true; }
         return this.requestPromise(this.getNotebooksUrl(expands, excludeReadOnlyNotebooks));
     };
     /**
-    * GetNotebookbyName
-    */
+     * GetNotebookbyName
+     */
     OneNoteApi.prototype.getNotebookByName = function (name) {
         return this.requestPromise("/notebooks?filter=name%20eq%20%27" + encodeURI(name) + "%27&orderby=createdTime");
     };
     /**
-    * PagesSearch
-    */
+     * PagesSearch
+     */
     OneNoteApi.prototype.pagesSearch = function (query) {
         return this.requestPromise(this.getSearchUrl(query));
     };
     /**
-    * GetExpands
-    *
-    * Nest expands so we can get notebook elements (sections and section groups) in
-    * the same call that we get notebooks.
-    *
-    * expands specifies how many levels deep to return.
-    */
+     * GetExpands
+     *
+     * Nest expands so we can get notebook elements (sections and section groups) in
+     * the same call that we get notebooks.
+     *
+     * expands specifies how many levels deep to return.
+     */
     OneNoteApi.prototype.getExpands = function (expands) {
         if (expands <= 0) {
             return "";
@@ -425,8 +431,8 @@ var OneNoteApi = (function (_super) {
         return expands === 1 ? s : s + "(" + this.getExpands(expands - 1) + ")";
     };
     /**
-    * GetNotebooksUrl
-    */
+     * GetNotebooksUrl
+     */
     OneNoteApi.prototype.getNotebooksUrl = function (numExpands, excludeReadOnlyNotebooks) {
         if (numExpands === void 0) { numExpands = 0; }
         if (excludeReadOnlyNotebooks === void 0) { excludeReadOnlyNotebooks = true; }
@@ -436,8 +442,8 @@ var OneNoteApi = (function (_super) {
         return "/notebooks?" + filter + (numExpands ? "&" + this.getExpands(numExpands) : "");
     };
     /**
-    * GetSearchUrl
-    */
+     * GetSearchUrl
+     */
     OneNoteApi.prototype.getSearchUrl = function (query) {
         return "/pages?search=" + query;
     };
@@ -474,8 +480,8 @@ exports.NotebookUtils = notebookUtils_1.NotebookUtils;
 var errorUtils_1 = require("./errorUtils");
 var ContentType = require("content-type");
 /**
-* Base communication layer for talking to the OneNote APIs.
-*/
+ * Base communication layer for talking to the OneNote APIs.
+ */
 var OneNoteApiBase = (function () {
     function OneNoteApiBase(token, timeout, headers) {
         if (headers === void 0) { headers = {}; }
@@ -487,7 +493,7 @@ var OneNoteApiBase = (function () {
     }
     OneNoteApiBase.prototype.requestBasePromise = function (partialUrl, data, contentType, httpMethod) {
         var fullUrl = this.generateFullBaseUrl(partialUrl);
-        if (contentType === null) {
+        if (contentType === undefined) {
             contentType = "application/json";
         }
         return this.makeRequest(fullUrl, data, contentType, httpMethod);
@@ -495,7 +501,7 @@ var OneNoteApiBase = (function () {
     OneNoteApiBase.prototype.requestPromise = function (partialUrl, data, contentType, httpMethod) {
         var _this = this;
         var fullUrl = this.generateFullUrl(partialUrl);
-        if (contentType === null) {
+        if (contentType === undefined) {
             contentType = "application/json";
         }
         return new Promise((function (resolve, reject) {

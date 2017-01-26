@@ -5,16 +5,16 @@ import {BatchRequest} from "./batchRequest";
 import {Revision} from "./structuredTypes";
 
 /**
-* Wrapper for easier calling of the OneNote APIs.
-*/
+ * Wrapper for easier calling of the OneNote APIs.
+ */
 export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	constructor(token: string, timeout = 30000, headers: { [key: string]: string } = {}) {
 		super(token, timeout, headers);
 	}
 
 	/**
-	* CreateNotebook
-	*/
+	 * CreateNotebook
+	 */
 	public createNotebook(name: string): Promise<ResponsePackage<any>> {
 		let data = JSON.stringify({ name: name });
 
@@ -22,8 +22,8 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	}
 
 	/**
-	* CreatePage
-	*/
+	 * CreatePage
+	 */
 	public createPage(page: OneNotePage, sectionId?: string): Promise<ResponsePackage<any>> {
 		let sectionPath = sectionId ? "/sections/" + sectionId : "";
 		let url = sectionPath + "/pages";
@@ -34,7 +34,7 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 
 	/**
 	 * SendBatchRequest
-	 **/
+	 */
 	public sendBatchRequest(batchRequest: BatchRequest) {
 		this.enableBetaApi();
 		return this.requestBasePromise("/$batch", batchRequest.getRequestBody(), batchRequest.getContentType(), "POST").then(this.disableBetaApi.bind(this));
@@ -48,11 +48,17 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 		return this.requestPromise(pagePath);
 	}
 
+	/**
+	 * getPageContent
+	 */
 	public getPageContent(pageId: string): Promise<ResponsePackage<any>> {
 		let pagePath = "/pages/" + pageId + "/content";
 		return this.requestPromise(pagePath);
 	}
 
+	/**
+	 * GetPages
+	 */
 	public getPages(options: { top?: number, sectionId?: string }): Promise<ResponsePackage<any>> {
 		let pagePath = "/pages";
 
@@ -78,8 +84,8 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	}
 
 	/**
-	* CreateSection
-	*/
+	 * CreateSection
+	 */
 	public createSection(notebookId: string, name: string): Promise<ResponsePackage<any>> {
 		let obj: Object = { name: name };
 		let data = JSON.stringify(obj);
@@ -88,41 +94,41 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	}
 
 	/**
-	* GetNotebooks
-	*/
+	 * GetNotebooks
+	 */
 	public getNotebooks(excludeReadOnlyNotebooks = true): Promise<ResponsePackage<any>> {
-		return this.requestPromise(this.getNotebooksUrl(null /*expands*/, excludeReadOnlyNotebooks));
+		return this.requestPromise(this.getNotebooksUrl(undefined /*expands*/, excludeReadOnlyNotebooks));
 	}
 
 	/**
-	* GetNotebooksWithExpandedSections
-	*/
+	 * GetNotebooksWithExpandedSections
+	 */
 	public getNotebooksWithExpandedSections(expands = 2, excludeReadOnlyNotebooks = true): Promise<ResponsePackage<any>> {
 		return this.requestPromise(this.getNotebooksUrl(expands, excludeReadOnlyNotebooks));
 	}
 
 	/**
-	* GetNotebookbyName
-	*/
+	 * GetNotebookbyName
+	 */
 	public getNotebookByName(name: string): Promise<ResponsePackage<any>> {
 		return this.requestPromise("/notebooks?filter=name%20eq%20%27" + encodeURI(name) + "%27&orderby=createdTime");
 	}
 
 	/**
-	* PagesSearch
-	*/
+	 * PagesSearch
+	 */
 	public pagesSearch(query: string): Promise<ResponsePackage<any>> {
 		return this.requestPromise(this.getSearchUrl(query));
 	}
 
 	/**
-	* GetExpands
-	*
-	* Nest expands so we can get notebook elements (sections and section groups) in
-	* the same call that we get notebooks.
-	*
-	* expands specifies how many levels deep to return.
-	*/
+	 * GetExpands
+	 *
+	 * Nest expands so we can get notebook elements (sections and section groups) in
+	 * the same call that we get notebooks.
+	 *
+	 * expands specifies how many levels deep to return.
+	 */
 	private getExpands(expands: number): string {
 		if (expands <= 0) {
 			return "";
@@ -134,8 +140,8 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	}
 
 	/**
-	* GetNotebooksUrl
-	*/
+	 * GetNotebooksUrl
+	 */
 	private getNotebooksUrl(numExpands = 0, excludeReadOnlyNotebooks = true): string {
 		// Since this url is most often used to save content to a specific notebook, by default
 		// it does not include a notebook where user has Read only permissions.
@@ -145,8 +151,8 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	}
 
 	/**
-	* GetSearchUrl
-	*/
+	 * GetSearchUrl
+	 */
 	private getSearchUrl(query: string): string {
 		return "/pages?search=" + query;
 	}

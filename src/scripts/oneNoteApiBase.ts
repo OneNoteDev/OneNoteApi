@@ -11,8 +11,8 @@ export interface ResponsePackage<T> {
 }
 
 /**
-* Base communication layer for talking to the OneNote APIs.
-*/
+ * Base communication layer for talking to the OneNote APIs.
+ */
 export class OneNoteApiBase {
 	// Whether or not the OneNote Beta APIs should be used.
 	public useBetaApi: boolean = false;
@@ -30,7 +30,7 @@ export class OneNoteApiBase {
 	public requestBasePromise(partialUrl: string, data?: XHRData, contentType?: string, httpMethod?: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
 		let fullUrl = this.generateFullBaseUrl(partialUrl);
 
-		if (contentType === null) {
+		if (contentType === undefined) {
 			contentType = "application/json";
 		}
 
@@ -40,7 +40,7 @@ export class OneNoteApiBase {
 	protected requestPromise(partialUrl: string, data?: XHRData, contentType?: string, httpMethod?: string): Promise<ResponsePackage<any>> {
 		let fullUrl = this.generateFullUrl(partialUrl);
 
-		if (contentType === null) {
+		if (contentType === undefined) {
 			contentType = "application/json";
 		}
 
