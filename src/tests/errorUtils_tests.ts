@@ -1,5 +1,3 @@
-/// <reference path="../definitions/qunit/qunit.d.ts" />
-
 import {ErrorUtils, RequestErrorType} from "../scripts/errorUtils";
 
 QUnit.module("requestError", {});

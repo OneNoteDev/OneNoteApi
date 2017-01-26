@@ -1,5 +1,3 @@
-/// <reference path="../definitions/qunit/qunit.d.ts" />
-
 import {OneNotePage} from "../scripts/oneNotePage";
 
 let title = "TITLE";

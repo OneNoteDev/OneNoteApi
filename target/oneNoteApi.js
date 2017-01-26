@@ -73,25 +73,25 @@ exports.BatchRequest = BatchRequest;
    Definitions of the supported ContentTypes.
  -------------------------------------------------------------------------*/
 "use strict";
+var ContentType;
 (function (ContentType) {
     ContentType[ContentType["Html"] = 0] = "Html";
     ContentType[ContentType["Image"] = 1] = "Image";
     ContentType[ContentType["EnhancedUrl"] = 2] = "EnhancedUrl";
     ContentType[ContentType["Url"] = 3] = "Url";
     ContentType[ContentType["Onml"] = 4] = "Onml";
-})(exports.ContentType || (exports.ContentType = {}));
-var ContentType = exports.ContentType;
+})(ContentType = exports.ContentType || (exports.ContentType = {}));
 
 },{}],3:[function(require,module,exports){
 /// <reference path="../oneNoteApi.d.ts"/>
 "use strict";
+var RequestErrorType;
 (function (RequestErrorType) {
     RequestErrorType[RequestErrorType["NETWORK_ERROR"] = 0] = "NETWORK_ERROR";
     RequestErrorType[RequestErrorType["UNEXPECTED_RESPONSE_STATUS"] = 1] = "UNEXPECTED_RESPONSE_STATUS";
     RequestErrorType[RequestErrorType["REQUEST_TIMED_OUT"] = 2] = "REQUEST_TIMED_OUT";
     RequestErrorType[RequestErrorType["UNABLE_TO_PARSE_RESPONSE"] = 3] = "UNABLE_TO_PARSE_RESPONSE";
-})(exports.RequestErrorType || (exports.RequestErrorType = {}));
-var RequestErrorType = exports.RequestErrorType;
+})(RequestErrorType = exports.RequestErrorType || (exports.RequestErrorType = {}));
 var ErrorUtils = (function () {
     function ErrorUtils() {
     }
@@ -320,7 +320,7 @@ var OneNoteApi = (function (_super) {
     function OneNoteApi(token, timeout, headers) {
         if (timeout === void 0) { timeout = 30000; }
         if (headers === void 0) { headers = {}; }
-        _super.call(this, token, timeout, headers);
+        return _super.call(this, token, timeout, headers) || this;
     }
     /**
     * CreateNotebook
@@ -469,10 +469,8 @@ var notebookUtils_1 = require("./notebookUtils");
 exports.NotebookUtils = notebookUtils_1.NotebookUtils;
 
 },{"./batchRequest":1,"./contentType":2,"./errorUtils":3,"./notebookUtils":4,"./oneNoteApiBase":6,"./oneNotePage":7}],6:[function(require,module,exports){
-/// <reference path="../definitions/es6-promise/es6-promise.d.ts"/>
-/// <reference path="../oneNoteApi.d.ts"/>
-/// <reference path="../definitions/content-type/content-type.d.ts"/>
 "use strict";
+/// <reference path="../oneNoteApi.d.ts"/>
 var errorUtils_1 = require("./errorUtils");
 var ContentType = require("content-type");
 /**
