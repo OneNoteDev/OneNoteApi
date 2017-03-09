@@ -1,0 +1,12 @@
+{
+	"compilerOptions": {
+		"jsx": "preserve",
+		"module": "commonjs",
+		"types": [
+			"content-type",
+			"es6-promise",
+			"qunit"
+		],
+		"outDir": "./build"
+	}
+}

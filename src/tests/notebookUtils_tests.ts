@@ -1,5 +1,3 @@
-/// <reference path="../definitions/qunit/qunit.d.ts" />
-
 import {SectionParent, SectionPathElement, NotebookUtils} from "../scripts/notebookUtils";
 
 let createNotebook = (id: string, isDefault: boolean, sectionGroups: OneNoteApi.SectionGroup[], sections: OneNoteApi.Section[]): OneNoteApi.Notebook => {

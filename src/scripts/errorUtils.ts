@@ -9,7 +9,7 @@ export enum RequestErrorType {
 
 export class ErrorUtils {
 	public static createRequestErrorObject(request: XMLHttpRequest, errorType: RequestErrorType): OneNoteApi.RequestError {
-		if (request === undefined || request === null) {
+		if (request === undefined) {
 			return;
 		}
 
@@ -47,7 +47,7 @@ export class ErrorUtils {
 	}
 
 	public static convertResponseHeadersToJson(request: XMLHttpRequest): { [key: string]: string } {
-		if (request === undefined || request === null) {
+		if (request === undefined) {
 			return;
 		}
 

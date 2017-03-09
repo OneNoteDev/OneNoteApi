@@ -16,7 +16,6 @@ var runSequence = require("run-sequence");
 var source = require("vinyl-source-stream");
 var ts = require("gulp-typescript");
 var tslint = require("gulp-tslint");
-var tsd = require("gulp-tsd");
 var uglify = require("gulp-uglify");
 
 var PATHS = {
@@ -27,29 +26,6 @@ var PATHS = {
 	DEFINITIONS: "src/definitions/",
 	WEBROOT: "serverRoot/"
 };
-
-////////////////////////////////////////
-// SETUP
-////////////////////////////////////////
-gulp.task("cleanDefinitions", function (callback) {
-	return del([
-		PATHS.DEFINITIONS
-	], callback);
-});
-
-gulp.task("definitions", function (callback) {
-	tsd({
-		command: "reinstall",
-		config: "tsd.json"
-	}, callback);
-});
-
-gulp.task("setup", function (callback) {
-	runSequence(
-		"cleanDefinitions",
-		"definitions",
-		callback);
-});
 
 ////////////////////////////////////////
 // CLEAN
@@ -66,29 +42,37 @@ gulp.task("clean", function (callback) {
 ////////////////////////////////////////
 // COMPILE
 ////////////////////////////////////////
-gulp.task("compile", function() {
+gulp.task("compile", function () {
+	var tsProject = ts.createProject("./tsconfig.json", {
+		typescript: require('typescript'),
+		noEmitOnError: true
+	})
+
 	return gulp.src([PATHS.SRCROOT + "**/*.+(ts|tsx)", "!**/*.d.ts"])
-		.pipe(ts({
-			module: "commonjs"
-		}))
+		.pipe(tsProject())
 		.pipe(gulp.dest(PATHS.BUILDROOT));
 });
 
 ////////////////////////////////////////
 // TSLINT
 ////////////////////////////////////////
-gulp.task("tslint", function () {
-	var tsErrorReport = tslint.report("prose", {
-		emitError: false,
-		reportLimit: 50
-	});
-
-	var tsFiles = [PATHS.SRCROOT + "**/*.ts", PATHS.SRCROOT + "**/*.tsx", "!" + PATHS.SRCROOT + "**/*.d.ts"];
+//The actual task to run
+gulp.task("tslint", function() {
+	var tsFiles = [
+		PATHS.SRCROOT + "**/*.ts",
+		PATHS.SRCROOT + "**/*.tsx",
+		"!" + PATHS.SRCROOT + "**/*.d.ts"
+	];
 
 	return gulp.src(tsFiles)
 		.pipe(plumber())
-		.pipe(tslint())
-		.pipe(tsErrorReport);
+		.pipe(tslint({
+			formatter: "verbose"
+		}))
+		.pipe(tslint.report({
+			emitError: false,
+			summarizeFailureOutput: true
+		}))
 });
 
 ////////////////////////////////////////
