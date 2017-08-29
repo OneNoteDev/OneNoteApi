@@ -16,7 +16,7 @@ declare namespace OneNoteApi {
 	 * Base communication layer for talking to the OneNote APIs.
 	 */
 	export class OneNoteApiBase {
-		constructor(_token: string, _timeout: number, _headers?: { [key: string]: string });
+		constructor(_authHeader: string, _timeout: number, _headers?: { [key: string]: string });
 
 		useBetaApi: boolean;
 	}
@@ -78,7 +78,7 @@ declare namespace OneNoteApi {
 	 * Wrapper for easier calling of the OneNote APIs.
 	 */
 	export class OneNoteApi extends OneNoteApiBase {
-		constructor(token: string, timeout?: number, headers?: { [key: string]: string });
+		constructor(authHeader: string, timeout?: number, headers?: { [key: string]: string });
 
 		/**
 		 * CreateNotebook
