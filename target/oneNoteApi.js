@@ -317,10 +317,10 @@ var oneNoteApiBase_1 = require("./oneNoteApiBase");
 */
 var OneNoteApi = (function (_super) {
     __extends(OneNoteApi, _super);
-    function OneNoteApi(token, timeout, headers) {
+    function OneNoteApi(authHeader, timeout, headers) {
         if (timeout === void 0) { timeout = 30000; }
         if (headers === void 0) { headers = {}; }
-        _super.call(this, token, timeout, headers);
+        _super.call(this, authHeader, timeout, headers);
     }
     /**
     * CreateNotebook
@@ -479,11 +479,11 @@ var ContentType = require("content-type");
 * Base communication layer for talking to the OneNote APIs.
 */
 var OneNoteApiBase = (function () {
-    function OneNoteApiBase(token, timeout, headers) {
+    function OneNoteApiBase(authHeader, timeout, headers) {
         if (headers === void 0) { headers = {}; }
         // Whether or not the OneNote Beta APIs should be used.
         this.useBetaApi = false;
-        this.token = token;
+        this.authHeader = authHeader;
         this.timeout = timeout;
         this.headers = headers;
     }
@@ -567,7 +567,7 @@ var OneNoteApiBase = (function () {
             if (contentType) {
                 request.setRequestHeader("Content-Type", contentType);
             }
-            request.setRequestHeader("Authorization", "Bearer " + _this.token);
+            request.setRequestHeader("Authorization", _this.authHeader);
             OneNoteApiBase.addHeadersToRequest(request, _this.headers);
             request.send(data);
         });

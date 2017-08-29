@@ -20,12 +20,12 @@ export class OneNoteApiBase {
 	// Whether or not the OneNote Beta APIs should be used.
 	public useBetaApi: boolean = false;
 
-	private token: string;
+	private authHeader: string;
 	private timeout: number;
 	private headers: { [key: string]: string };
 
-	constructor(token: string, timeout: number, headers: { [key: string]: string } = {}) {
-		this.token = token;
+	constructor(authHeader: string, timeout: number, headers: { [key: string]: string } = {}) {
+		this.authHeader = authHeader;
 		this.timeout = timeout;
 		this.headers = headers;
 	}
@@ -123,7 +123,7 @@ export class OneNoteApiBase {
 				request.setRequestHeader("Content-Type", contentType);
 			}
 
-			request.setRequestHeader("Authorization", "Bearer " + this.token);
+			request.setRequestHeader("Authorization", this.authHeader);
 			OneNoteApiBase.addHeadersToRequest(request, this.headers);
 
 			request.send(data);
