@@ -8,8 +8,8 @@ import {Revision} from "./structuredTypes";
 * Wrapper for easier calling of the OneNote APIs.
 */
 export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
-	constructor(token: string, timeout = 30000, headers: { [key: string]: string } = {}) {
-		super(token, timeout, headers);
+	constructor(authHeader: string, timeout = 30000, headers: { [key: string]: string } = {}) {
+		super(authHeader, timeout, headers);
 	}
 
 	/**
