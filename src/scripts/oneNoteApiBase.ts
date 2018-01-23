@@ -23,11 +23,13 @@ export class OneNoteApiBase {
 	private authHeader: string;
 	private timeout: number;
 	private headers: { [key: string]: string };
+	private oneNoteApiHostVersionOverride: string;
 
-	constructor(authHeader: string, timeout: number, headers: { [key: string]: string } = {}) {
+	constructor(authHeader: string, timeout: number, headers: { [key: string]: string } = {}, oneNoteApiHostVersionOverride: string = null) {
 		this.authHeader = authHeader;
 		this.timeout = timeout;
 		this.headers = headers;
+		this.oneNoteApiHostVersionOverride = oneNoteApiHostVersionOverride;
 	}
 
 	public requestBasePromise(partialUrl: string, data?: XHRData, contentType?: string, httpMethod?: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
@@ -40,8 +42,13 @@ export class OneNoteApiBase {
 		return this.makeRequest(fullUrl, data, contentType, httpMethod);
 	}
 
-	protected requestPromise(partialUrl: string, data?: XHRData, contentType?: string, httpMethod?: string): Promise<ResponsePackage<any>> {
-		let fullUrl = this.generateFullUrl(partialUrl);
+	protected requestPromise(url: string, data?: XHRData, contentType?: string, httpMethod?: string, isFullUrl?: boolean): Promise<ResponsePackage<any>> {
+		let fullUrl;
+		if (isFullUrl) {
+			fullUrl = url;
+		} else {
+			fullUrl = this.generateFullUrl(url);
+		}
 
 		if (contentType === null) {
 			contentType = "application/json";
@@ -57,11 +64,19 @@ export class OneNoteApiBase {
 	}
 
 	public generateFullBaseUrl(partialUrl: string): string {
+		if (this.oneNoteApiHostVersionOverride) {
+			return this.oneNoteApiHostVersionOverride + partialUrl;
+		}
+
 		let apiRootUrl: string = this.useBetaApi ? "https://www.onenote.com/api/beta" : "https://www.onenote.com/api/v1.0";
 		return apiRootUrl + partialUrl;
 	}
 
 	public generateFullUrl(partialUrl: string): string {
+		if (this.oneNoteApiHostVersionOverride) {
+			return this.oneNoteApiHostVersionOverride + partialUrl;
+		}
+
 		let apiRootUrl: string = this.useBetaApi ? "https://www.onenote.com/api/beta/me/notes" : "https://www.onenote.com/api/v1.0/me/notes";
 		return apiRootUrl + partialUrl;
 	}
@@ -123,7 +138,10 @@ export class OneNoteApiBase {
 				request.setRequestHeader("Content-Type", contentType);
 			}
 
-			request.setRequestHeader("Authorization", this.authHeader);
+			if (this.authHeader) {
+				request.setRequestHeader("Authorization", this.authHeader);
+			}
+
 			OneNoteApiBase.addHeadersToRequest(request, this.headers);
 
 			request.send(data);
