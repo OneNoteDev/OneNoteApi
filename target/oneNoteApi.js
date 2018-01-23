@@ -317,10 +317,11 @@ var oneNoteApiBase_1 = require("./oneNoteApiBase");
 */
 var OneNoteApi = (function (_super) {
     __extends(OneNoteApi, _super);
-    function OneNoteApi(authHeader, timeout, headers) {
+    function OneNoteApi(authHeader, timeout, headers, oneNoteApiHostVersionOverride) {
         if (timeout === void 0) { timeout = 30000; }
         if (headers === void 0) { headers = {}; }
-        _super.call(this, authHeader, timeout, headers);
+        if (oneNoteApiHostVersionOverride === void 0) { oneNoteApiHostVersionOverride = null; }
+        _super.call(this, authHeader, timeout, headers, oneNoteApiHostVersionOverride);
     }
     /**
     * CreateNotebook
@@ -337,6 +338,27 @@ var OneNoteApi = (function (_super) {
         var url = sectionPath + "/pages";
         var form = page.getTypedFormData();
         return this.requestPromise(url, form.asBlob(), form.getContentType());
+    };
+    /**
+    * GetRecentNotebooks
+    */
+    OneNoteApi.prototype.getRecentNotebooks = function (includePersonal) {
+        var url = "/me/notes/notebooks/Microsoft.OneNote.Api.GetRecentNotebooks(includePersonalNotebooks=" + includePersonal + ")";
+        return this.requestPromise(url);
+    };
+    /**
+    * GetWopiProperties
+    */
+    OneNoteApi.prototype.getNotebookWopiProperties = function (notebookSelfPath, frameAction) {
+        var url = notebookSelfPath + "/Microsoft.OneNote.Api.GetWopiProperties(frameAction='" + frameAction + "')";
+        return this.requestPromise(url, null, null, null, /*isFullUrl*/ true);
+    };
+    /**
+    * GetNotebooksFromWebUrls
+    */
+    OneNoteApi.prototype.getNotebooksFromWebUrls = function (notebookWebUrls) {
+        var url = "/me/notes/notebooks/Microsoft.OneNote.Api.GetNotebooksFromWebUrls()";
+        return this.requestPromise(url, JSON.stringify(notebookWebUrls));
     };
     /**
      * SendBatchRequest
@@ -479,13 +501,15 @@ var ContentType = require("content-type");
 * Base communication layer for talking to the OneNote APIs.
 */
 var OneNoteApiBase = (function () {
-    function OneNoteApiBase(authHeader, timeout, headers) {
+    function OneNoteApiBase(authHeader, timeout, headers, oneNoteApiHostVersionOverride) {
         if (headers === void 0) { headers = {}; }
+        if (oneNoteApiHostVersionOverride === void 0) { oneNoteApiHostVersionOverride = null; }
         // Whether or not the OneNote Beta APIs should be used.
         this.useBetaApi = false;
         this.authHeader = authHeader;
         this.timeout = timeout;
         this.headers = headers;
+        this.oneNoteApiHostVersionOverride = oneNoteApiHostVersionOverride;
     }
     OneNoteApiBase.prototype.requestBasePromise = function (partialUrl, data, contentType, httpMethod) {
         var fullUrl = this.generateFullBaseUrl(partialUrl);
@@ -494,9 +518,15 @@ var OneNoteApiBase = (function () {
         }
         return this.makeRequest(fullUrl, data, contentType, httpMethod);
     };
-    OneNoteApiBase.prototype.requestPromise = function (partialUrl, data, contentType, httpMethod) {
+    OneNoteApiBase.prototype.requestPromise = function (url, data, contentType, httpMethod, isFullUrl) {
         var _this = this;
-        var fullUrl = this.generateFullUrl(partialUrl);
+        var fullUrl;
+        if (isFullUrl) {
+            fullUrl = url;
+        }
+        else {
+            fullUrl = this.generateFullUrl(url);
+        }
         if (contentType === null) {
             contentType = "application/json";
         }
@@ -509,10 +539,16 @@ var OneNoteApiBase = (function () {
         }));
     };
     OneNoteApiBase.prototype.generateFullBaseUrl = function (partialUrl) {
+        if (this.oneNoteApiHostVersionOverride) {
+            return this.oneNoteApiHostVersionOverride + partialUrl;
+        }
         var apiRootUrl = this.useBetaApi ? "https://www.onenote.com/api/beta" : "https://www.onenote.com/api/v1.0";
         return apiRootUrl + partialUrl;
     };
     OneNoteApiBase.prototype.generateFullUrl = function (partialUrl) {
+        if (this.oneNoteApiHostVersionOverride) {
+            return this.oneNoteApiHostVersionOverride + partialUrl;
+        }
         var apiRootUrl = this.useBetaApi ? "https://www.onenote.com/api/beta/me/notes" : "https://www.onenote.com/api/v1.0/me/notes";
         return apiRootUrl + partialUrl;
     };
@@ -567,7 +603,9 @@ var OneNoteApiBase = (function () {
             if (contentType) {
                 request.setRequestHeader("Content-Type", contentType);
             }
-            request.setRequestHeader("Authorization", _this.authHeader);
+            if (_this.authHeader) {
+                request.setRequestHeader("Authorization", _this.authHeader);
+            }
             OneNoteApiBase.addHeadersToRequest(request, _this.headers);
             request.send(data);
         });
@@ -765,9 +803,9 @@ exports.TypedFormData = TypedFormData;
  * obs-text      = %x80-FF
  * quoted-pair   = "\" ( HTAB / SP / VCHAR / obs-text )
  */
-var paramRegExp = /; *([!#$%&'\*\+\-\.\^_`\|~0-9A-Za-z]+) *= *("(?:[\u000b\u0020\u0021\u0023-\u005b\u005d-\u007e\u0080-\u00ff]|\\[\u000b\u0020-\u00ff])*"|[!#$%&'\*\+\-\.\^_`\|~0-9A-Za-z]+) */g
-var textRegExp = /^[\u000b\u0020-\u007e\u0080-\u00ff]+$/
-var tokenRegExp = /^[!#$%&'\*\+\-\.\^_`\|~0-9A-Za-z]+$/
+var PARAM_REGEXP = /; *([!#$%&'*+.^_`|~0-9A-Za-z-]+) *= *("(?:[\u000b\u0020\u0021\u0023-\u005b\u005d-\u007e\u0080-\u00ff]|\\[\u000b\u0020-\u00ff])*"|[!#$%&'*+.^_`|~0-9A-Za-z-]+) */g
+var TEXT_REGEXP = /^[\u000b\u0020-\u007e\u0080-\u00ff]+$/
+var TOKEN_REGEXP = /^[!#$%&'*+.^_`|~0-9A-Za-z-]+$/
 
 /**
  * RegExp to match quoted-pair in RFC 7230 sec 3.2.6
@@ -775,21 +813,21 @@ var tokenRegExp = /^[!#$%&'\*\+\-\.\^_`\|~0-9A-Za-z]+$/
  * quoted-pair = "\" ( HTAB / SP / VCHAR / obs-text )
  * obs-text    = %x80-FF
  */
-var qescRegExp = /\\([\u000b\u0020-\u00ff])/g
+var QESC_REGEXP = /\\([\u000b\u0020-\u00ff])/g
 
 /**
  * RegExp to match chars that must be quoted-pair in RFC 7230 sec 3.2.6
  */
-var quoteRegExp = /([\\"])/g
+var QUOTE_REGEXP = /([\\"])/g
 
 /**
- * RegExp to match type in RFC 6838
+ * RegExp to match type in RFC 7231 sec 3.1.1.1
  *
  * media-type = type "/" subtype
  * type       = token
  * subtype    = token
  */
-var typeRegExp = /^[!#$%&'\*\+\-\.\^_`\|~0-9A-Za-z]+\/[!#$%&'\*\+\-\.\^_`\|~0-9A-Za-z]+$/
+var TYPE_REGEXP = /^[!#$%&'*+.^_`|~0-9A-Za-z-]+\/[!#$%&'*+.^_`|~0-9A-Za-z-]+$/
 
 /**
  * Module exports.
@@ -807,7 +845,7 @@ exports.parse = parse
  * @public
  */
 
-function format(obj) {
+function format (obj) {
   if (!obj || typeof obj !== 'object') {
     throw new TypeError('argument obj is required')
   }
@@ -815,7 +853,7 @@ function format(obj) {
   var parameters = obj.parameters
   var type = obj.type
 
-  if (!type || !typeRegExp.test(type)) {
+  if (!type || !TYPE_REGEXP.test(type)) {
     throw new TypeError('invalid type')
   }
 
@@ -829,7 +867,7 @@ function format(obj) {
     for (var i = 0; i < params.length; i++) {
       param = params[i]
 
-      if (!tokenRegExp.test(param)) {
+      if (!TOKEN_REGEXP.test(param)) {
         throw new TypeError('invalid parameter name')
       }
 
@@ -848,61 +886,61 @@ function format(obj) {
  * @public
  */
 
-function parse(string) {
+function parse (string) {
   if (!string) {
     throw new TypeError('argument string is required')
   }
 
-  if (typeof string === 'object') {
-    // support req/res-like objects as argument
-    string = getcontenttype(string)
+  // support req/res-like objects as argument
+  var header = typeof string === 'object'
+    ? getcontenttype(string)
+    : string
 
-    if (typeof string !== 'string') {
-      throw new TypeError('content-type header is missing from object');
-    }
-  }
-
-  if (typeof string !== 'string') {
+  if (typeof header !== 'string') {
     throw new TypeError('argument string is required to be a string')
   }
 
-  var index = string.indexOf(';')
+  var index = header.indexOf(';')
   var type = index !== -1
-    ? string.substr(0, index).trim()
-    : string.trim()
+    ? header.substr(0, index).trim()
+    : header.trim()
 
-  if (!typeRegExp.test(type)) {
+  if (!TYPE_REGEXP.test(type)) {
     throw new TypeError('invalid media type')
   }
 
-  var key
-  var match
   var obj = new ContentType(type.toLowerCase())
-  var value
 
-  paramRegExp.lastIndex = index
+  // parse parameters
+  if (index !== -1) {
+    var key
+    var match
+    var value
 
-  while (match = paramRegExp.exec(string)) {
-    if (match.index !== index) {
+    PARAM_REGEXP.lastIndex = index
+
+    while ((match = PARAM_REGEXP.exec(header))) {
+      if (match.index !== index) {
+        throw new TypeError('invalid parameter format')
+      }
+
+      index += match[0].length
+      key = match[1].toLowerCase()
+      value = match[2]
+
+      if (value[0] === '"') {
+        // remove quotes and escapes
+        value = value
+          .substr(1, value.length - 2)
+          .replace(QESC_REGEXP, '$1')
+      }
+
+      obj.parameters[key] = value
+    }
+
+    if (index !== header.length) {
       throw new TypeError('invalid parameter format')
     }
-
-    index += match[0].length
-    key = match[1].toLowerCase()
-    value = match[2]
-
-    if (value[0] === '"') {
-      // remove quotes and escapes
-      value = value
-        .substr(1, value.length - 2)
-        .replace(qescRegExp, '$1')
-    }
-
-    obj.parameters[key] = value
-  }
-
-  if (index !== -1 && index !== string.length) {
-    throw new TypeError('invalid parameter format')
   }
 
   return obj
@@ -916,16 +954,22 @@ function parse(string) {
  * @private
  */
 
-function getcontenttype(obj) {
+function getcontenttype (obj) {
+  var header
+
   if (typeof obj.getHeader === 'function') {
     // res-like
-    return obj.getHeader('content-type')
+    header = obj.getHeader('content-type')
+  } else if (typeof obj.headers === 'object') {
+    // req-like
+    header = obj.headers && obj.headers['content-type']
   }
 
-  if (typeof obj.headers === 'object') {
-    // req-like
-    return obj.headers && obj.headers['content-type']
+  if (typeof header !== 'string') {
+    throw new TypeError('content-type header is missing from object')
   }
+
+  return header
 }
 
 /**
@@ -936,26 +980,26 @@ function getcontenttype(obj) {
  * @private
  */
 
-function qstring(val) {
+function qstring (val) {
   var str = String(val)
 
   // no need to quote tokens
-  if (tokenRegExp.test(str)) {
+  if (TOKEN_REGEXP.test(str)) {
     return str
   }
 
-  if (str.length > 0 && !textRegExp.test(str)) {
+  if (str.length > 0 && !TEXT_REGEXP.test(str)) {
     throw new TypeError('invalid parameter value')
   }
 
-  return '"' + str.replace(quoteRegExp, '\\$1') + '"'
+  return '"' + str.replace(QUOTE_REGEXP, '\\$1') + '"'
 }
 
 /**
  * Class to represent a content type.
  * @private
  */
-function ContentType(type) {
+function ContentType (type) {
   this.parameters = Object.create(null)
   this.type = type
 }
