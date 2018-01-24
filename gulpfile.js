@@ -18,6 +18,7 @@ var ts = require("gulp-typescript");
 var tslint = require("gulp-tslint");
 var tsd = require("gulp-tsd");
 var uglify = require("gulp-uglify");
+var dtsBundle = require("dts-bundle");
 
 var PATHS = {
 	SRCROOT: "src/",
@@ -70,8 +71,6 @@ gulp.task("compile", function() {
 	var tsResult = gulp.src([PATHS.SRCROOT + "**/*.+(ts|tsx)", "!**/*.d.ts"])
 		.pipe(ts({
 			declaration: true,
-			inlineSourceMap: true,
-			inlineSources: true,
 			module: "commonjs"
 		}));
 
@@ -117,11 +116,6 @@ gulp.task("bundleApi", function () {
 		.pipe(gulp.dest(PATHS.BUNDLEROOT));
 });
 
-gulp.task("bundleDefinition", function () {
-	gulp.src(PATHS.BUILDROOT + "scripts/onenoteApi.d.ts")
-		.pipe(gulp.dest(PATHS.BUNDLEROOT));
-});
-
 gulp.task("bundleTests", function () {
 	return globby.sync(["**/*.js"], { cwd: PATHS.BUILDROOT + "tests" }).map(function (filePath) {
 		return browserify(PATHS.BUILDROOT + "tests/" + filePath, { debug: true })
@@ -131,10 +125,23 @@ gulp.task("bundleTests", function () {
 	});
 });
 
+gulp.task("bundleDefinitions", function (callback) {
+	dtsBundle.bundle({
+		name: 'sample',
+		out: '../../' + PATHS.BUNDLEROOT + '/oneNoteApi.d.ts',
+		main: PATHS.BUILDROOT + '/scripts/oneNoteApi.d.ts',
+		emitOnIncludedFileNotFound: true,
+		emitOnNoIncludedFileNotFound: true,
+		outputAsModuleFolder: true
+	});
+	callback();
+});
+
 gulp.task("bundle", function (callback) {
 	runSequence(
 		"bundleApi",
 		"bundleTests",
+		"bundleDefinitions",
 		callback);
 });
 
@@ -164,7 +171,7 @@ gulp.task("exportApi", function () {
 	var copyTask = gulp.src([
 		PATHS.BUNDLEROOT + "oneNoteApi.js",
 		PATHS.BUNDLEROOT + "oneNoteApi.min.js",
-		PATHS.SRCROOT + "oneNoteApi.d.ts"
+		PATHS.BUNDLEROOT + "oneNoteApi.d.ts"
 	]).pipe(gulp.dest(PATHS.TARGETROOT));
 
 	return merge(modulesTask, copyTask);
