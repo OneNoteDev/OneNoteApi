@@ -83,7 +83,7 @@ exports.BatchRequest = BatchRequest;
 var ContentType = exports.ContentType;
 
 },{}],3:[function(require,module,exports){
-/// <reference path="../oneNoteApi.d.ts"/>
+/// <reference path="oneNoteApi.ts"/>
 "use strict";
 (function (RequestErrorType) {
     RequestErrorType[RequestErrorType["NETWORK_ERROR"] = 0] = "NETWORK_ERROR";
@@ -166,7 +166,6 @@ var ErrorUtils = (function () {
 exports.ErrorUtils = ErrorUtils;
 
 },{}],4:[function(require,module,exports){
-/// <reference path="../oneNoteApi.d.ts"/>
 "use strict";
 var NotebookUtils = (function () {
     function NotebookUtils() {
@@ -317,11 +316,12 @@ var oneNoteApiBase_1 = require("./oneNoteApiBase");
 */
 var OneNoteApi = (function (_super) {
     __extends(OneNoteApi, _super);
-    function OneNoteApi(authHeader, timeout, headers, oneNoteApiHostVersionOverride) {
+    function OneNoteApi(authHeader, timeout, headers, oneNoteApiHostVersionOverride, queryParams) {
         if (timeout === void 0) { timeout = 30000; }
         if (headers === void 0) { headers = {}; }
         if (oneNoteApiHostVersionOverride === void 0) { oneNoteApiHostVersionOverride = null; }
-        _super.call(this, authHeader, timeout, headers, oneNoteApiHostVersionOverride);
+        if (queryParams === void 0) { queryParams = null; }
+        _super.call(this, authHeader, timeout, headers, oneNoteApiHostVersionOverride, queryParams);
     }
     /**
     * CreateNotebook
@@ -365,7 +365,7 @@ var OneNoteApi = (function (_super) {
      **/
     OneNoteApi.prototype.sendBatchRequest = function (batchRequest) {
         this.enableBetaApi();
-        return this.requestBasePromise("/$batch", batchRequest.getRequestBody(), batchRequest.getContentType(), "POST").then(this.disableBetaApi.bind(this));
+        return this.requestPromise("/$batch", batchRequest.getRequestBody(), batchRequest.getContentType(), "POST").then(this.disableBetaApi.bind(this));
     };
     /**
      * GetPage
@@ -492,7 +492,6 @@ exports.NotebookUtils = notebookUtils_1.NotebookUtils;
 
 },{"./batchRequest":1,"./contentType":2,"./errorUtils":3,"./notebookUtils":4,"./oneNoteApiBase":6,"./oneNotePage":7}],6:[function(require,module,exports){
 /// <reference path="../definitions/es6-promise/es6-promise.d.ts"/>
-/// <reference path="../oneNoteApi.d.ts"/>
 /// <reference path="../definitions/content-type/content-type.d.ts"/>
 "use strict";
 var errorUtils_1 = require("./errorUtils");
@@ -501,23 +500,18 @@ var ContentType = require("content-type");
 * Base communication layer for talking to the OneNote APIs.
 */
 var OneNoteApiBase = (function () {
-    function OneNoteApiBase(authHeader, timeout, headers, oneNoteApiHostVersionOverride) {
+    function OneNoteApiBase(authHeader, timeout, headers, oneNoteApiHostVersionOverride, queryParams) {
         if (headers === void 0) { headers = {}; }
         if (oneNoteApiHostVersionOverride === void 0) { oneNoteApiHostVersionOverride = null; }
+        if (queryParams === void 0) { queryParams = null; }
         // Whether or not the OneNote Beta APIs should be used.
         this.useBetaApi = false;
         this.authHeader = authHeader;
         this.timeout = timeout;
         this.headers = headers;
         this.oneNoteApiHostVersionOverride = oneNoteApiHostVersionOverride;
+        this.queryParams = queryParams;
     }
-    OneNoteApiBase.prototype.requestBasePromise = function (partialUrl, data, contentType, httpMethod) {
-        var fullUrl = this.generateFullBaseUrl(partialUrl);
-        if (contentType === null) {
-            contentType = "application/json";
-        }
-        return this.makeRequest(fullUrl, data, contentType, httpMethod);
-    };
     OneNoteApiBase.prototype.requestPromise = function (url, data, contentType, httpMethod, isFullUrl) {
         var _this = this;
         var fullUrl;
@@ -537,6 +531,26 @@ var OneNoteApiBase = (function () {
                 reject(error);
             });
         }));
+    };
+    OneNoteApiBase.prototype.appendQueryParams = function (url) {
+        var queryParams = this.queryParams;
+        if (!queryParams) {
+            return url;
+        }
+        var queryParamArray = [];
+        for (var key in queryParams) {
+            if (queryParams.hasOwnProperty(key)) {
+                var queryParamValue = encodeURIComponent(queryParams[key]);
+                queryParamArray.push(key + "=" + queryParamValue);
+            }
+        }
+        var serializedQueryParams = queryParamArray.join("&");
+        if (url.indexOf("?") === -1) {
+            return url + "?" + serializedQueryParams;
+        }
+        else {
+            return url + "&" + serializedQueryParams;
+        }
     };
     OneNoteApiBase.prototype.generateFullBaseUrl = function (partialUrl) {
         if (this.oneNoteApiHostVersionOverride) {

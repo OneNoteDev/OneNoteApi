@@ -1,7 +1,7 @@
-/// <reference path="../oneNoteApi.d.ts"/>
+import {Notebook, SectionGroup, Section} from "./structuredTypes";
 
-export type SectionParent = OneNoteApi.Notebook | OneNoteApi.SectionGroup;
-export type SectionPathElement = SectionParent | OneNoteApi.Section;
+export type SectionParent = Notebook | SectionGroup;
+export type SectionPathElement = SectionParent | Section;
 
 export class NotebookUtils {
 	/**
@@ -11,7 +11,7 @@ export class NotebookUtils {
 	 * @param sectionId Section id to check the existence of
 	 * @return true if the section exists in the notebooks; false otherwise
 	 */
-	public static sectionExistsInNotebooks(notebooks: OneNoteApi.Notebook[], sectionId: string): boolean {
+	public static sectionExistsInNotebooks(notebooks: Notebook[], sectionId: string): boolean {
 		if (!notebooks || !sectionId) {
 			return false;
 		}
@@ -31,7 +31,7 @@ export class NotebookUtils {
 	 * @param sectionId Section id to check the existence of
 	 * @return true if the section exists in the parent; false otherwise
 	 */
-	public static sectionExistsInParent(parent: OneNoteApi.SectionParent, sectionId: string): boolean {
+	public static sectionExistsInParent(parent: SectionParent, sectionId: string): boolean {
 		if (!parent || !sectionId) {
 			return false;
 		}
@@ -63,7 +63,7 @@ export class NotebookUtils {
 	 * @param notebooks List of notebooks to search
 	 * @return section path (e.g., [notebook, sectionGroup, section]); undefined if there is none
 	 */
-	public static getPathFromNotebooksToSection(notebooks: OneNoteApi.Notebook[], filter: (s: OneNoteApi.Section) => boolean): SectionPathElement[] {
+	public static getPathFromNotebooksToSection(notebooks: Notebook[], filter: (s: Section) => boolean): SectionPathElement[] {
 		if (!notebooks || !filter) {
 			return undefined;
 		}
@@ -86,7 +86,7 @@ export class NotebookUtils {
 	 * @param parent The notebook or section group to search
 	 * @return section path (e.g., [parent, sectionGroup, sectionGroup, section]); undefined if there is none
 	 */
-	public static getPathFromParentToSection(parent: SectionParent, filter: (s: OneNoteApi.Section) => boolean): SectionPathElement[] {
+	public static getPathFromParentToSection(parent: SectionParent, filter: (s: Section) => boolean): SectionPathElement[] {
 		if (!parent || !filter) {
 			return undefined;
 		}
@@ -120,7 +120,7 @@ export class NotebookUtils {
 	 * @param notebooks List of notebooks
 	 * @return Maximum depth
 	 */
-	public static getDepthOfNotebooks(notebooks: OneNoteApi.Notebook[]): number {
+	public static getDepthOfNotebooks(notebooks: Notebook[]): number {
 		if (!notebooks || notebooks.length === 0) {
 			return 0;
 		}

@@ -67,11 +67,18 @@ gulp.task("clean", function (callback) {
 // COMPILE
 ////////////////////////////////////////
 gulp.task("compile", function() {
-	return gulp.src([PATHS.SRCROOT + "**/*.+(ts|tsx)", "!**/*.d.ts"])
+	var tsResult = gulp.src([PATHS.SRCROOT + "**/*.+(ts|tsx)", "!**/*.d.ts"])
 		.pipe(ts({
+			declaration: true,
+			inlineSourceMap: true,
+			inlineSources: true,
 			module: "commonjs"
-		}))
-		.pipe(gulp.dest(PATHS.BUILDROOT));
+		}));
+
+	return merge([
+		tsResult.dts.pipe(gulp.dest(PATHS.BUILDROOT)),
+		tsResult.js.pipe(gulp.dest(PATHS.BUILDROOT))
+	]);
 });
 
 ////////////////////////////////////////
@@ -107,6 +114,11 @@ gulp.task("bundleApi", function () {
 		.bundle()
 		.pipe(source("oneNoteApi.js"))
 		.pipe(header(getLicense()))
+		.pipe(gulp.dest(PATHS.BUNDLEROOT));
+});
+
+gulp.task("bundleDefinition", function () {
+	gulp.src(PATHS.BUILDROOT + "scripts/onenoteApi.d.ts")
 		.pipe(gulp.dest(PATHS.BUNDLEROOT));
 });
 

@@ -1,6 +1,6 @@
 /// <reference path="../definitions/qunit/qunit.d.ts" />
 
-import {ErrorUtils, RequestErrorType} from "../scripts/errorUtils";
+import {ErrorUtils, RequestErrorType, RequestError} from "../scripts/errorUtils";
 
 QUnit.module("requestError", {});
 
@@ -30,7 +30,7 @@ let defaultTimeout = 30000;
 let defaultResponse = "responded";
 
 test("createRequestErrorObjectInternal returns RequestError of type NETWORK_ERROR", () => {
-	let expectedRequestError: OneNoteApi.RequestError = {
+	let expectedRequestError: RequestError = {
 		error: "Network error: {\"readyState\":0}",
 		statusCode: defaultStatus,
 		responseHeaders: defaultResponseHeadersJson,
@@ -43,7 +43,7 @@ test("createRequestErrorObjectInternal returns RequestError of type NETWORK_ERRO
 });
 
 test("createRequestErrorObjectInternal returns RequestError of type NETWORK_ERROR", () => {
-	let expectedRequestError: OneNoteApi.RequestError = {
+	let expectedRequestError: RequestError = {
 		error: "Network error: {\"readyState\":0}",
 		statusCode: defaultStatus,
 		responseHeaders: defaultResponseHeadersJson,
@@ -56,7 +56,7 @@ test("createRequestErrorObjectInternal returns RequestError of type NETWORK_ERRO
 });
 
 test("createRequestErrorObjectInternal returns RequestError of type REQUEST_TIMED_OUT", () => {
-	let expectedRequestError: OneNoteApi.RequestError = {
+	let expectedRequestError: RequestError = {
 		error: "Request timed out",
 		statusCode: 408,
 		responseHeaders: defaultResponseHeadersJson,
@@ -69,7 +69,7 @@ test("createRequestErrorObjectInternal returns RequestError of type REQUEST_TIME
 });
 
 test("createRequestErrorObjectInternal returns RequestError of type UNABLE_TO_PARSE_RESPONSE", () => {
-	let expectedRequestError: OneNoteApi.RequestError = {
+	let expectedRequestError: RequestError = {
 		error: "Unable to parse response",
 		statusCode: defaultStatus,
 		responseHeaders: defaultResponseHeadersJson,
@@ -82,7 +82,7 @@ test("createRequestErrorObjectInternal returns RequestError of type UNABLE_TO_PA
 });
 
 test("createRequestErrorObjectInternal returns RequestError of type UNEXPECTED_RESPONSE_STATUS", () => {
-	let expectedRequestError: OneNoteApi.RequestError = {
+	let expectedRequestError: RequestError = {
 		error: "Unexpected response status",
 		statusCode: defaultStatus,
 		responseHeaders: defaultResponseHeadersJson,
@@ -95,7 +95,7 @@ test("createRequestErrorObjectInternal returns RequestError of type UNEXPECTED_R
 });
 
 test("createRequestErrorObjectInternal returns RequestError without timeout property if undefined", () => {
-	let expectedRequestError: OneNoteApi.RequestError = {
+	let expectedRequestError: RequestError = {
 		error: "Request timed out",
 		statusCode: 408,
 		responseHeaders: defaultResponseHeadersJson,
@@ -107,7 +107,7 @@ test("createRequestErrorObjectInternal returns RequestError without timeout prop
 });
 
 test("createRequestErrorObjectInternal returns RequestError without timeout property if 0ms", () => {
-	let expectedRequestError: OneNoteApi.RequestError = {
+	let expectedRequestError: RequestError = {
 		error: "Request timed out",
 		statusCode: 408,
 		responseHeaders: defaultResponseHeadersJson,
@@ -121,7 +121,7 @@ test("createRequestErrorObjectInternal returns RequestError without timeout prop
 test("createRequestErrorObjectInternal returns RequestError without timeout property if status code is in 200-range", () => {
 	let statusCodeArg = 200;
 
-	let expectedRequestError: OneNoteApi.RequestError = {
+	let expectedRequestError: RequestError = {
 		error: "Unable to parse response",
 		statusCode: statusCodeArg,
 		responseHeaders: defaultResponseHeadersJson,

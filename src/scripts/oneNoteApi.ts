@@ -8,8 +8,8 @@ import {Revision} from "./structuredTypes";
 * Wrapper for easier calling of the OneNote APIs.
 */
 export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
-	constructor(authHeader: string, timeout = 30000, headers: { [key: string]: string } = {}, oneNoteApiHostVersionOverride: string = null) {
-		super(authHeader, timeout, headers, oneNoteApiHostVersionOverride);
+	constructor(authHeader: string, timeout = 30000, headers: { [key: string]: string } = {}, oneNoteApiHostVersionOverride: string = null, queryParams: { [key: string]: string } = null) {
+		super(authHeader, timeout, headers, oneNoteApiHostVersionOverride, queryParams);
 	}
 
 	/**
@@ -64,7 +64,7 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	 **/
 	public sendBatchRequest(batchRequest: BatchRequest) {
 		this.enableBetaApi();
-		return this.requestBasePromise("/$batch", batchRequest.getRequestBody(), batchRequest.getContentType(), "POST").then(this.disableBetaApi.bind(this));
+		return this.requestPromise("/$batch", batchRequest.getRequestBody(), batchRequest.getContentType(), "POST").then(this.disableBetaApi.bind(this));
 	}
 
 	/**

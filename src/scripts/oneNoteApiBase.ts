@@ -1,12 +1,10 @@
 /// <reference path="../definitions/es6-promise/es6-promise.d.ts"/>
-/// <reference path="../oneNoteApi.d.ts"/>
 /// <reference path="../definitions/content-type/content-type.d.ts"/>
 
-import {ErrorUtils, RequestErrorType} from "./errorUtils";
+import {ErrorUtils, RequestErrorType, RequestError} from "./errorUtils";
 
 import * as ContentType from "content-type";
-
-type XHRData = ArrayBufferView | Blob | Document | string | FormData;
+export type XHRData = ArrayBufferView | Blob | Document | string | FormData;
 
 export interface ResponsePackage<T> {
 	parsedResponse: T;
@@ -24,22 +22,14 @@ export class OneNoteApiBase {
 	private timeout: number;
 	private headers: { [key: string]: string };
 	private oneNoteApiHostVersionOverride: string;
+	private queryParams: { [key: string]: string };
 
-	constructor(authHeader: string, timeout: number, headers: { [key: string]: string } = {}, oneNoteApiHostVersionOverride: string = null) {
+	constructor(authHeader: string, timeout: number, headers: { [key: string]: string } = {}, oneNoteApiHostVersionOverride: string = null, queryParams: { [key: string]: string } = null) {
 		this.authHeader = authHeader;
 		this.timeout = timeout;
 		this.headers = headers;
 		this.oneNoteApiHostVersionOverride = oneNoteApiHostVersionOverride;
-	}
-
-	public requestBasePromise(partialUrl: string, data?: XHRData, contentType?: string, httpMethod?: string): Promise<ResponsePackage<any> | OneNoteApi.RequestError> {
-		let fullUrl = this.generateFullBaseUrl(partialUrl);
-
-		if (contentType === null) {
-			contentType = "application/json";
-		}
-
-		return this.makeRequest(fullUrl, data, contentType, httpMethod);
+		this.queryParams = queryParams;
 	}
 
 	protected requestPromise(url: string, data?: XHRData, contentType?: string, httpMethod?: string, isFullUrl?: boolean): Promise<ResponsePackage<any>> {
@@ -54,13 +44,34 @@ export class OneNoteApiBase {
 			contentType = "application/json";
 		}
 
-		return new Promise(((resolve: (responsePackage: ResponsePackage<any>) => void, reject: (error: OneNoteApi.RequestError) => void) => {
+		return new Promise(((resolve: (responsePackage: ResponsePackage<any>) => void, reject: (error: RequestError) => void) => {
 			this.makeRequest(fullUrl, data, contentType, httpMethod).then((responsePackage: ResponsePackage<any>) => {
 				resolve(responsePackage);
-			}, (error: OneNoteApi.RequestError) => {
+			}, (error: RequestError) => {
 				reject(error);
 			});
 		}));
+	}
+
+	private appendQueryParams(url: string): string {
+		let queryParams = this.queryParams;
+		if (!queryParams) {
+			return url;
+		}
+
+		let queryParamArray = [];
+		for (const key in queryParams) {
+			if (queryParams.hasOwnProperty(key)) {
+				const queryParamValue = encodeURIComponent(queryParams[key]);
+				queryParamArray.push(key + "=" + queryParamValue);
+			}
+		}
+		const serializedQueryParams = queryParamArray.join("&");
+		if (url.indexOf("?") === -1) {
+			return url + "?" + serializedQueryParams;
+		} else {
+			return url + "&" + serializedQueryParams;
+		}
 	}
 
 	public generateFullBaseUrl(partialUrl: string): string {
@@ -82,7 +93,7 @@ export class OneNoteApiBase {
 	}
 
 	private makeRequest(url: string, data?: XHRData, contentType?: string, httpMethod?: string): Promise<ResponsePackage<any>> {
-		return new Promise((resolve: (responsePackage: ResponsePackage<any>) => void, reject: (error: OneNoteApi.RequestError) => void) => {
+		return new Promise((resolve: (responsePackage: ResponsePackage<any>) => void, reject: (error: RequestError) => void) => {
 			let request = new XMLHttpRequest();
 
 			let type: string;

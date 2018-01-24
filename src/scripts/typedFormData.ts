@@ -1,4 +1,4 @@
-type Blobbable = string | ArrayBuffer;
+export type Blobbable = string | ArrayBuffer;
 
 export interface DataPart {
 	name: string;
