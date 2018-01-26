@@ -444,13 +444,20 @@ var OneNoteApi = (function (_super) {
         return this.requestPromise(url, data, contentType, httpMethod, isFullUrl);
     };
     /**
-    * Method that can be used to send any HTTP request
+    * Get site information for a site
     */
     OneNoteApi.prototype.getSiteLocationFromUrl = function (url) {
         var escapeAposForOData = url.replace(/'/g, "\"");
         var encodeUriComponent = encodeURIComponent(escapeAposForOData);
         var endpointUrl = "/myOrganization/siteCollections/FromUrl(url='" + encodeUriComponent + "')";
         return this.requestPromise(endpointUrl);
+    };
+    /**
+    * create a group notebook
+    */
+    OneNoteApi.prototype.createGroupNotebook = function (name, groupId) {
+        var data = JSON.stringify({ name: name });
+        return this.requestPromise("/api/v1.0/myOrganization/groups/" + groupId + "/notes", data);
     };
     /**
     * GetExpands

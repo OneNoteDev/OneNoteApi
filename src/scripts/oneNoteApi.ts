@@ -157,13 +157,21 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	}
 
 	/**
-	* Method that can be used to send any HTTP request
+	* Get site information for a site
 	*/
 	public getSiteLocationFromUrl(url: string): Promise<ResponsePackage<any>> {
 		const escapeAposForOData = url.replace(/'/g, "\"");
 		const encodeUriComponent = encodeURIComponent(escapeAposForOData);
 		const endpointUrl = "/myOrganization/siteCollections/FromUrl(url='" + encodeUriComponent + "')";
 		return this.requestPromise(endpointUrl);
+	}
+
+	/**
+	* create a group notebook
+	*/
+	public createGroupNotebook(name: string, groupId: string): Promise<ResponsePackage<any>> {
+		const data = JSON.stringify({ name: name });
+		return this.requestPromise("/api/v1.0/myOrganization/groups/" + groupId + "/notes", data);
 	}
 
 	/**
