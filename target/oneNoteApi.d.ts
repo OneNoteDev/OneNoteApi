@@ -73,7 +73,7 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
         /**
          * Method that can be used to send any HTTP request
          */
-        performApiCall(url: any, data: any, contentType: any, httpMethod: any, isFullUrl: any): Promise<ResponsePackage<any>>;
+        performApiCall(url: string, data?: XHRData, contentType?: string, httpMethod?: string, isFullUrl?: boolean): Promise<ResponsePackage<any>>;
 }
 
 export interface IOneNoteApi {

@@ -1,5 +1,5 @@
 import {IOneNoteApi} from "./iOneNoteApi";
-import {OneNoteApiBase, ResponsePackage} from "./oneNoteApiBase";
+import {OneNoteApiBase, ResponsePackage, XHRData} from "./oneNoteApiBase";
 import {OneNotePage} from "./oneNotePage";
 import {BatchRequest} from "./batchRequest";
 import {Revision} from "./structuredTypes";
@@ -152,7 +152,7 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	/**
 	* Method that can be used to send any HTTP request
 	*/
-	public performApiCall(url, data, contentType, httpMethod, isFullUrl): Promise<ResponsePackage<any>> {
+	public performApiCall(url: string, data?: XHRData, contentType?: string, httpMethod?: string, isFullUrl?: boolean): Promise<ResponsePackage<any>> {
 		return this.requestPromise(url, data, contentType, httpMethod, isFullUrl);
 	}
 
