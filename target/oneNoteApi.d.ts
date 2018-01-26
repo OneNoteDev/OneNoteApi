@@ -63,9 +63,17 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
          */
         getNotebookByName(name: string): Promise<ResponsePackage<any>>;
         /**
+         * GetDefaultNotebook
+         */
+        getDefaultNotebook(): Promise<ResponsePackage<any>>;
+        /**
          * PagesSearch
          */
         pagesSearch(query: string): Promise<ResponsePackage<any>>;
+        /**
+         * Method that can be used to send any HTTP request
+         */
+        performApiCall(url: any, data: any, contentType: any, httpMethod: any, isFullUrl: any): Promise<ResponsePackage<any>>;
 }
 
 export interface IOneNoteApi {

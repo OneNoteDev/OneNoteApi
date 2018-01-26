@@ -426,10 +426,22 @@ var OneNoteApi = (function (_super) {
         return this.requestPromise("/notebooks?filter=name%20eq%20%27" + encodeURI(name) + "%27&orderby=createdTime");
     };
     /**
+    * GetDefaultNotebook
+    */
+    OneNoteApi.prototype.getDefaultNotebook = function () {
+        return this.requestPromise("/notebooks?filter=isDefault%20eq%20true%20");
+    };
+    /**
     * PagesSearch
     */
     OneNoteApi.prototype.pagesSearch = function (query) {
         return this.requestPromise(this.getSearchUrl(query));
+    };
+    /**
+    * Method that can be used to send any HTTP request
+    */
+    OneNoteApi.prototype.performApiCall = function (url, data, contentType, httpMethod, isFullUrl) {
+        return this.requestPromise(url, data, contentType, httpMethod, isFullUrl);
     };
     /**
     * GetExpands

@@ -136,10 +136,24 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	}
 
 	/**
+	* GetDefaultNotebook
+	*/
+	public getDefaultNotebook(): Promise<ResponsePackage<any>> {
+		return this.requestPromise("/notebooks?filter=isDefault%20eq%20true%20");
+	}
+
+	/**
 	* PagesSearch
 	*/
 	public pagesSearch(query: string): Promise<ResponsePackage<any>> {
 		return this.requestPromise(this.getSearchUrl(query));
+	}
+
+	/**
+	* Method that can be used to send any HTTP request
+	*/
+	public performApiCall(url, data, contentType, httpMethod, isFullUrl): Promise<ResponsePackage<any>> {
+		return this.requestPromise(url, data, contentType, httpMethod, isFullUrl);
 	}
 
 	/**
