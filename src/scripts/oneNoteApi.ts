@@ -157,6 +157,16 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	}
 
 	/**
+	* Method that can be used to send any HTTP request
+	*/
+	public getSiteLocationFromUrl(url: string): Promise<ResponsePackage<any>> {
+		const escapeAposForOData = url.replace(/'/g, "\"");
+		const encodeUriComponent = encodeURIComponent(escapeAposForOData);
+		const endpointUrl = "/myOrganization/siteCollections/FromUrl(url='" + encodeUriComponent + "')";
+		return this.requestPromise(endpointUrl);
+	}
+
+	/**
 	* GetExpands
 	*
 	* Nest expands so we can get notebook elements (sections and section groups) in
@@ -211,4 +221,4 @@ export {ContentType} from "./contentType";
 export {OneNotePage} from "./oneNotePage";
 export {BatchRequest} from "./batchRequest";
 export {ErrorUtils, RequestErrorType} from "./errorUtils";
-export {NotebookUtils} from "./notebookUtils";
+export { NotebookUtils } from "./notebookUtils";

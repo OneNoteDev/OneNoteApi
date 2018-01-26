@@ -444,6 +444,15 @@ var OneNoteApi = (function (_super) {
         return this.requestPromise(url, data, contentType, httpMethod, isFullUrl);
     };
     /**
+    * Method that can be used to send any HTTP request
+    */
+    OneNoteApi.prototype.getSiteLocationFromUrl = function (url) {
+        var escapeAposForOData = url.replace(/'/g, "\"");
+        var encodeUriComponent = encodeURIComponent(escapeAposForOData);
+        var endpointUrl = "/myOrganization/siteCollections/FromUrl(url='" + encodeUriComponent + "')";
+        return this.requestPromise(endpointUrl);
+    };
+    /**
     * GetExpands
     *
     * Nest expands so we can get notebook elements (sections and section groups) in
