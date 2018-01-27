@@ -96,7 +96,7 @@ var ErrorUtils = (function () {
     function ErrorUtils() {
     }
     ErrorUtils.createRequestErrorObject = function (request, errorType) {
-        if (request === undefined || request === null) {
+        if (!request) {
             return;
         }
         return ErrorUtils.createRequestErrorObjectInternal(request.status, request.readyState, request.response, request.getAllResponseHeaders(), request.timeout, errorType);
@@ -316,12 +316,12 @@ var oneNoteApiBase_1 = require("./oneNoteApiBase");
 */
 var OneNoteApi = (function (_super) {
     __extends(OneNoteApi, _super);
-    function OneNoteApi(authHeader, timeout, headers, oneNoteApiHostVersionOverride, queryParams) {
+    function OneNoteApi(authHeader, timeout, headers, oneNoteApiHostOverride, queryParams) {
         if (timeout === void 0) { timeout = 30000; }
         if (headers === void 0) { headers = {}; }
-        if (oneNoteApiHostVersionOverride === void 0) { oneNoteApiHostVersionOverride = null; }
+        if (oneNoteApiHostOverride === void 0) { oneNoteApiHostOverride = null; }
         if (queryParams === void 0) { queryParams = null; }
-        _super.call(this, authHeader, timeout, headers, oneNoteApiHostVersionOverride, queryParams);
+        _super.call(this, authHeader, timeout, headers, oneNoteApiHostOverride, queryParams);
     }
     /**
     * CreateNotebook
@@ -343,7 +343,7 @@ var OneNoteApi = (function (_super) {
     * GetRecentNotebooks
     */
     OneNoteApi.prototype.getRecentNotebooks = function (includePersonal) {
-        var url = "/me/notes/notebooks/Microsoft.OneNote.Api.GetRecentNotebooks(includePersonalNotebooks=" + includePersonal + ")";
+        var url = "/notebooks/Microsoft.OneNote.Api.GetRecentNotebooks(includePersonalNotebooks=" + includePersonal + ")";
         return this.requestPromise(url);
     };
     /**
@@ -351,14 +351,21 @@ var OneNoteApi = (function (_super) {
     */
     OneNoteApi.prototype.getNotebookWopiProperties = function (notebookSelfPath, frameAction) {
         var url = notebookSelfPath + "/Microsoft.OneNote.Api.GetWopiProperties(frameAction='" + frameAction + "')";
-        return this.requestPromise(url, null, null, null, /*isFullUrl*/ true);
+        return this.requestPromise(url, null, null, null, null, true /* URL contains version */);
     };
     /**
     * GetNotebooksFromWebUrls
     */
     OneNoteApi.prototype.getNotebooksFromWebUrls = function (notebookWebUrls) {
         var url = "/me/notes/notebooks/Microsoft.OneNote.Api.GetNotebooksFromWebUrls()";
-        return this.requestPromise(url, JSON.stringify(notebookWebUrls));
+        var payload = {
+            webUrls: notebookWebUrls
+        };
+        var oldUseBetaApi = this.useBetaApi;
+        this.useBetaApi = true; // This API is only supported in beta
+        var returnValue = this.requestPromise(url, JSON.stringify(payload));
+        this.useBetaApi = oldUseBetaApi;
+        return returnValue;
     };
     /**
      * SendBatchRequest
@@ -440,8 +447,8 @@ var OneNoteApi = (function (_super) {
     /**
     * Method that can be used to send any HTTP request
     */
-    OneNoteApi.prototype.performApiCall = function (url, data, contentType, httpMethod, isFullUrl) {
-        return this.requestPromise(url, data, contentType, httpMethod, isFullUrl);
+    OneNoteApi.prototype.performApiCall = function (url, data, contentType, httpMethod, isFullUrl, urlContainsVersion) {
+        return this.requestPromise(url, data, contentType, httpMethod, isFullUrl, urlContainsVersion);
     };
     /**
     * Get site information for a site
@@ -457,7 +464,7 @@ var OneNoteApi = (function (_super) {
     */
     OneNoteApi.prototype.createGroupNotebook = function (name, groupId) {
         var data = JSON.stringify({ name: name });
-        return this.requestPromise("/api/v1.0/myOrganization/groups/" + groupId + "/notes", data);
+        return this.requestPromise("/myOrganization/groups/" + groupId + "/notes/notebooks", data);
     };
     /**
     * GetExpands
@@ -528,28 +535,28 @@ var ContentType = require("content-type");
 * Base communication layer for talking to the OneNote APIs.
 */
 var OneNoteApiBase = (function () {
-    function OneNoteApiBase(authHeader, timeout, headers, oneNoteApiHostVersionOverride, queryParams) {
+    function OneNoteApiBase(authHeader, timeout, headers, oneNoteApiHostOverride, queryParams) {
         if (headers === void 0) { headers = {}; }
-        if (oneNoteApiHostVersionOverride === void 0) { oneNoteApiHostVersionOverride = null; }
+        if (oneNoteApiHostOverride === void 0) { oneNoteApiHostOverride = null; }
         if (queryParams === void 0) { queryParams = null; }
         // Whether or not the OneNote Beta APIs should be used.
         this.useBetaApi = false;
         this.authHeader = authHeader;
         this.timeout = timeout;
         this.headers = headers;
-        this.oneNoteApiHostVersionOverride = oneNoteApiHostVersionOverride;
+        this.oneNoteApiHostOverride = oneNoteApiHostOverride;
         this.queryParams = queryParams;
     }
-    OneNoteApiBase.prototype.requestPromise = function (url, data, contentType, httpMethod, isFullUrl) {
+    OneNoteApiBase.prototype.requestPromise = function (url, data, contentType, httpMethod, isFullUrl, urlContainsVersion) {
         var _this = this;
         var fullUrl;
         if (isFullUrl) {
             fullUrl = url;
         }
         else {
-            fullUrl = this.generateFullUrl(url);
+            fullUrl = this.generateFullUrl(url, urlContainsVersion);
         }
-        if (contentType === null) {
+        if (!contentType) {
             contentType = "application/json";
         }
         return new Promise((function (resolve, reject) {
@@ -580,19 +587,25 @@ var OneNoteApiBase = (function () {
             return url + "&" + serializedQueryParams;
         }
     };
-    OneNoteApiBase.prototype.generateFullBaseUrl = function (partialUrl) {
-        if (this.oneNoteApiHostVersionOverride) {
-            return this.oneNoteApiHostVersionOverride + partialUrl;
+    OneNoteApiBase.prototype.generateUrlUntilVersion = function (urlContainsVersion) {
+        var apiHost;
+        if (this.oneNoteApiHostOverride) {
+            apiHost = this.oneNoteApiHostOverride;
         }
-        var apiRootUrl = this.useBetaApi ? "https://www.onenote.com/api/beta" : "https://www.onenote.com/api/v1.0";
-        return apiRootUrl + partialUrl;
+        else {
+            apiHost = "https://www.onenote.com";
+        }
+        var apiVersionPortion = "";
+        if (!urlContainsVersion) {
+            apiVersionPortion = this.useBetaApi ? "/api/beta" : "/api/v1.0";
+        }
+        return apiHost + apiVersionPortion;
     };
-    OneNoteApiBase.prototype.generateFullUrl = function (partialUrl) {
-        if (this.oneNoteApiHostVersionOverride) {
-            return this.oneNoteApiHostVersionOverride + partialUrl;
-        }
-        var apiRootUrl = this.useBetaApi ? "https://www.onenote.com/api/beta/me/notes" : "https://www.onenote.com/api/v1.0/me/notes";
-        return apiRootUrl + partialUrl;
+    OneNoteApiBase.prototype.generateFullUrl = function (partialUrl, urlContainsVersion) {
+        return this.generateUrlUntilVersion(urlContainsVersion) + partialUrl;
+    };
+    OneNoteApiBase.prototype.generateFullMeNotesUrl = function (partialUrl, urlContainsVersion) {
+        return this.generateUrlUntilVersion(urlContainsVersion) + "/me/notes" + partialUrl;
     };
     OneNoteApiBase.prototype.makeRequest = function (url, data, contentType, httpMethod) {
         var _this = this;

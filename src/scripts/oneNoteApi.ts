@@ -8,8 +8,8 @@ import {Revision} from "./structuredTypes";
 * Wrapper for easier calling of the OneNote APIs.
 */
 export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
-	constructor(authHeader: string, timeout = 30000, headers: { [key: string]: string } = {}, oneNoteApiHostVersionOverride: string = null, queryParams: { [key: string]: string } = null) {
-		super(authHeader, timeout, headers, oneNoteApiHostVersionOverride, queryParams);
+	constructor(authHeader: string, timeout = 30000, headers: { [key: string]: string } = {}, oneNoteApiHostOverride: string = null, queryParams: { [key: string]: string } = null) {
+		super(authHeader, timeout, headers, oneNoteApiHostOverride, queryParams);
 	}
 
 	/**
@@ -36,7 +36,7 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	* GetRecentNotebooks
 	*/
 	public getRecentNotebooks(includePersonal: boolean): Promise<ResponsePackage<any>> {
-		let url = "/me/notes/notebooks/Microsoft.OneNote.Api.GetRecentNotebooks(includePersonalNotebooks=" + includePersonal + ")";
+		let url = "/notebooks/Microsoft.OneNote.Api.GetRecentNotebooks(includePersonalNotebooks=" + includePersonal + ")";
 
 		return this.requestPromise(url);
 	}
@@ -47,7 +47,7 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	public getNotebookWopiProperties(notebookSelfPath: string, frameAction: string): Promise<ResponsePackage<any>> {
 		let url = notebookSelfPath + "/Microsoft.OneNote.Api.GetWopiProperties(frameAction='" + frameAction + "')";
 
-		return this.requestPromise(url, null, null, null, /*isFullUrl*/ true);
+		return this.requestPromise(url, null, null, null, null, true /* URL contains version */);
 	}
 
 	/**
@@ -55,8 +55,15 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	*/
 	public getNotebooksFromWebUrls(notebookWebUrls: string[]): Promise<ResponsePackage<any>> {
 		let url = "/me/notes/notebooks/Microsoft.OneNote.Api.GetNotebooksFromWebUrls()";
+		const payload = {
+			webUrls: notebookWebUrls
+		};
 
-		return this.requestPromise(url, JSON.stringify(notebookWebUrls));
+		const oldUseBetaApi = this.useBetaApi;
+		this.useBetaApi = true; // This API is only supported in beta
+		const returnValue = this.requestPromise(url, JSON.stringify(payload));
+		this.useBetaApi = oldUseBetaApi;
+		return returnValue;
 	}
 
 	/**
@@ -152,8 +159,8 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	/**
 	* Method that can be used to send any HTTP request
 	*/
-	public performApiCall(url: string, data?: XHRData, contentType?: string, httpMethod?: string, isFullUrl?: boolean): Promise<ResponsePackage<any>> {
-		return this.requestPromise(url, data, contentType, httpMethod, isFullUrl);
+	public performApiCall(url: string, data?: XHRData, contentType?: string, httpMethod?: string, isFullUrl?: boolean, urlContainsVersion?: boolean): Promise<ResponsePackage<any>> {
+		return this.requestPromise(url, data, contentType, httpMethod, isFullUrl, urlContainsVersion);
 	}
 
 	/**
@@ -171,7 +178,7 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	*/
 	public createGroupNotebook(name: string, groupId: string): Promise<ResponsePackage<any>> {
 		const data = JSON.stringify({ name: name });
-		return this.requestPromise("/api/v1.0/myOrganization/groups/" + groupId + "/notes", data);
+		return this.requestPromise("/myOrganization/groups/" + groupId + "/notes/notebooks", data);
 	}
 
 	/**

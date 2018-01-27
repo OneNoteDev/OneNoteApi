@@ -21,26 +21,26 @@ export class OneNoteApiBase {
 	private authHeader: string;
 	private timeout: number;
 	private headers: { [key: string]: string };
-	private oneNoteApiHostVersionOverride: string;
+	private oneNoteApiHostOverride: string;
 	private queryParams: { [key: string]: string };
 
-	constructor(authHeader: string, timeout: number, headers: { [key: string]: string } = {}, oneNoteApiHostVersionOverride: string = null, queryParams: { [key: string]: string } = null) {
+	constructor(authHeader: string, timeout: number, headers: { [key: string]: string } = {}, oneNoteApiHostOverride: string = null, queryParams: { [key: string]: string } = null) {
 		this.authHeader = authHeader;
 		this.timeout = timeout;
 		this.headers = headers;
-		this.oneNoteApiHostVersionOverride = oneNoteApiHostVersionOverride;
+		this.oneNoteApiHostOverride = oneNoteApiHostOverride;
 		this.queryParams = queryParams;
 	}
 
-	protected requestPromise(url: string, data?: XHRData, contentType?: string, httpMethod?: string, isFullUrl?: boolean): Promise<ResponsePackage<any>> {
+	protected requestPromise(url: string, data?: XHRData, contentType?: string, httpMethod?: string, isFullUrl?: boolean, urlContainsVersion?: boolean): Promise<ResponsePackage<any>> {
 		let fullUrl;
 		if (isFullUrl) {
 			fullUrl = url;
 		} else {
-			fullUrl = this.generateFullUrl(url);
+			fullUrl = this.generateFullUrl(url, urlContainsVersion);
 		}
 
-		if (contentType === null) {
+		if (!contentType) {
 			contentType = "application/json";
 		}
 
@@ -74,22 +74,27 @@ export class OneNoteApiBase {
 		}
 	}
 
-	public generateFullBaseUrl(partialUrl: string): string {
-		if (this.oneNoteApiHostVersionOverride) {
-			return this.oneNoteApiHostVersionOverride + partialUrl;
+	private generateUrlUntilVersion(urlContainsVersion?: boolean) {
+		let apiHost;
+		if (this.oneNoteApiHostOverride) {
+			apiHost = this.oneNoteApiHostOverride;
+		} else {
+			apiHost = "https://www.onenote.com";
 		}
 
-		let apiRootUrl: string = this.useBetaApi ? "https://www.onenote.com/api/beta" : "https://www.onenote.com/api/v1.0";
-		return apiRootUrl + partialUrl;
+		let apiVersionPortion = "";
+		if (!urlContainsVersion) {
+			apiVersionPortion = this.useBetaApi ? "/api/beta" : "/api/v1.0";
+		}
+		return apiHost + apiVersionPortion;
 	}
 
-	public generateFullUrl(partialUrl: string): string {
-		if (this.oneNoteApiHostVersionOverride) {
-			return this.oneNoteApiHostVersionOverride + partialUrl;
-		}
+	public generateFullUrl(partialUrl: string, urlContainsVersion?: boolean): string {
+		return this.generateUrlUntilVersion(urlContainsVersion) + partialUrl;
+	}
 
-		let apiRootUrl: string = this.useBetaApi ? "https://www.onenote.com/api/beta/me/notes" : "https://www.onenote.com/api/v1.0/me/notes";
-		return apiRootUrl + partialUrl;
+	public generateFullMeNotesUrl(partialUrl: string, urlContainsVersion?: boolean): string {
+		return this.generateUrlUntilVersion(urlContainsVersion) + "/me/notes" + partialUrl;
 	}
 
 	private makeRequest(url: string, data?: XHRData, contentType?: string, httpMethod?: string): Promise<ResponsePackage<any>> {

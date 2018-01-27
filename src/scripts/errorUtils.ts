@@ -20,7 +20,7 @@ export interface RequestError extends GenericError {
 
 export class ErrorUtils {
 	public static createRequestErrorObject(request: XMLHttpRequest, errorType: RequestErrorType): RequestError {
-		if (request === undefined || request === null) {
+		if (!request) {
 			return;
 		}
 

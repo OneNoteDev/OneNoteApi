@@ -6,7 +6,7 @@
 export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
         constructor(authHeader: string, timeout?: number, headers?: {
                 [key: string]: string;
-        }, oneNoteApiHostVersionOverride?: string, queryParams?: {
+        }, oneNoteApiHostOverride?: string, queryParams?: {
                 [key: string]: string;
         });
         /**
@@ -73,7 +73,7 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
         /**
          * Method that can be used to send any HTTP request
          */
-        performApiCall(url: string, data?: XHRData, contentType?: string, httpMethod?: string, isFullUrl?: boolean): Promise<ResponsePackage<any>>;
+        performApiCall(url: string, data?: XHRData, contentType?: string, httpMethod?: string, isFullUrl?: boolean, urlContainsVersion?: boolean): Promise<ResponsePackage<any>>;
         /**
          * Get site information for a site
          */
@@ -114,12 +114,12 @@ export class OneNoteApiBase {
     useBetaApi: boolean;
     constructor(authHeader: string, timeout: number, headers?: {
         [key: string]: string;
-    }, oneNoteApiHostVersionOverride?: string, queryParams?: {
+    }, oneNoteApiHostOverride?: string, queryParams?: {
         [key: string]: string;
     });
-    protected requestPromise(url: string, data?: XHRData, contentType?: string, httpMethod?: string, isFullUrl?: boolean): Promise<ResponsePackage<any>>;
-    generateFullBaseUrl(partialUrl: string): string;
-    generateFullUrl(partialUrl: string): string;
+    protected requestPromise(url: string, data?: XHRData, contentType?: string, httpMethod?: string, isFullUrl?: boolean, urlContainsVersion?: boolean): Promise<ResponsePackage<any>>;
+    generateFullUrl(partialUrl: string, urlContainsVersion?: boolean): string;
+    generateFullMeNotesUrl(partialUrl: string, urlContainsVersion?: boolean): string;
 }
 
 /**
