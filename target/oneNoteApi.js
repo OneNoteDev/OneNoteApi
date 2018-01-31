@@ -83,7 +83,7 @@ exports.BatchRequest = BatchRequest;
 var ContentType = exports.ContentType;
 
 },{}],3:[function(require,module,exports){
-/// <reference path="../oneNoteApi.d.ts"/>
+/// <reference path="oneNoteApi.ts"/>
 "use strict";
 (function (RequestErrorType) {
     RequestErrorType[RequestErrorType["NETWORK_ERROR"] = 0] = "NETWORK_ERROR";
@@ -96,7 +96,7 @@ var ErrorUtils = (function () {
     function ErrorUtils() {
     }
     ErrorUtils.createRequestErrorObject = function (request, errorType) {
-        if (request === undefined || request === null) {
+        if (!request) {
             return;
         }
         return ErrorUtils.createRequestErrorObjectInternal(request.status, request.readyState, request.response, request.getAllResponseHeaders(), request.timeout, errorType);
@@ -166,7 +166,6 @@ var ErrorUtils = (function () {
 exports.ErrorUtils = ErrorUtils;
 
 },{}],4:[function(require,module,exports){
-/// <reference path="../oneNoteApi.d.ts"/>
 "use strict";
 var NotebookUtils = (function () {
     function NotebookUtils() {
@@ -317,10 +316,12 @@ var oneNoteApiBase_1 = require("./oneNoteApiBase");
 */
 var OneNoteApi = (function (_super) {
     __extends(OneNoteApi, _super);
-    function OneNoteApi(authHeader, timeout, headers) {
+    function OneNoteApi(authHeader, timeout, headers, oneNoteApiHostOverride, queryParams) {
         if (timeout === void 0) { timeout = 30000; }
         if (headers === void 0) { headers = {}; }
-        _super.call(this, authHeader, timeout, headers);
+        if (oneNoteApiHostOverride === void 0) { oneNoteApiHostOverride = null; }
+        if (queryParams === void 0) { queryParams = null; }
+        _super.call(this, authHeader, timeout, headers, oneNoteApiHostOverride, queryParams);
     }
     /**
     * CreateNotebook
@@ -339,11 +340,39 @@ var OneNoteApi = (function (_super) {
         return this.requestPromise(url, form.asBlob(), form.getContentType());
     };
     /**
+    * GetRecentNotebooks
+    */
+    OneNoteApi.prototype.getRecentNotebooks = function (includePersonal) {
+        var url = "/notebooks/Microsoft.OneNote.Api.GetRecentNotebooks(includePersonalNotebooks=" + includePersonal + ")";
+        return this.requestPromise(url);
+    };
+    /**
+    * GetWopiProperties
+    */
+    OneNoteApi.prototype.getNotebookWopiProperties = function (notebookSelfPath, frameAction) {
+        var url = notebookSelfPath + "/Microsoft.OneNote.Api.GetWopiProperties(frameAction='" + frameAction + "')";
+        return this.requestPromise(url, null, null, null, null, true /* URL contains version */);
+    };
+    /**
+    * GetNotebooksFromWebUrls
+    */
+    OneNoteApi.prototype.getNotebooksFromWebUrls = function (notebookWebUrls) {
+        var url = "/me/notes/notebooks/Microsoft.OneNote.Api.GetNotebooksFromWebUrls()";
+        var payload = {
+            webUrls: notebookWebUrls
+        };
+        var oldUseBetaApi = this.useBetaApi;
+        this.useBetaApi = true; // This API is only supported in beta
+        var returnValue = this.requestPromise(url, JSON.stringify(payload));
+        this.useBetaApi = oldUseBetaApi;
+        return returnValue;
+    };
+    /**
      * SendBatchRequest
      **/
     OneNoteApi.prototype.sendBatchRequest = function (batchRequest) {
         this.enableBetaApi();
-        return this.requestBasePromise("/$batch", batchRequest.getRequestBody(), batchRequest.getContentType(), "POST").then(this.disableBetaApi.bind(this));
+        return this.requestPromise("/$batch", batchRequest.getRequestBody(), batchRequest.getContentType(), "POST").then(this.disableBetaApi.bind(this));
     };
     /**
      * GetPage
@@ -352,10 +381,16 @@ var OneNoteApi = (function (_super) {
         var pagePath = "/pages/" + pageId;
         return this.requestPromise(pagePath);
     };
+    /**
+     * GetPageContent
+     */
     OneNoteApi.prototype.getPageContent = function (pageId) {
         var pagePath = "/pages/" + pageId + "/content";
         return this.requestPromise(pagePath);
     };
+    /**
+     * GetPages
+     */
     OneNoteApi.prototype.getPages = function (options) {
         var pagePath = "/pages";
         if (options.top > 0 && options.top === Math.floor(options.top)) {
@@ -398,16 +433,51 @@ var OneNoteApi = (function (_super) {
         return this.requestPromise(this.getNotebooksUrl(expands, excludeReadOnlyNotebooks));
     };
     /**
+    * GetNotebooksWithExpandedSections
+    */
+    OneNoteApi.prototype.getNotebookBySelfUrl = function (selfUrl, expands) {
+        if (expands === void 0) { expands = 2; }
+        return this.requestPromise(selfUrl + "?" + this.getExpands(expands), null, null, null, true /* isFullUrl */);
+    };
+    /**
     * GetNotebookbyName
     */
     OneNoteApi.prototype.getNotebookByName = function (name) {
         return this.requestPromise("/notebooks?filter=name%20eq%20%27" + encodeURI(name) + "%27&orderby=createdTime");
     };
     /**
+    * GetDefaultNotebook
+    */
+    OneNoteApi.prototype.getDefaultNotebook = function () {
+        return this.requestPromise("/notebooks?filter=isDefault%20eq%20true%20");
+    };
+    /**
     * PagesSearch
     */
     OneNoteApi.prototype.pagesSearch = function (query) {
         return this.requestPromise(this.getSearchUrl(query));
+    };
+    /**
+    * Method that can be used to send any HTTP request
+    */
+    OneNoteApi.prototype.performApiCall = function (url, data, contentType, httpMethod, isFullUrl, urlContainsVersion) {
+        return this.requestPromise(url, data, contentType, httpMethod, isFullUrl, urlContainsVersion);
+    };
+    /**
+    * Get site information for a site
+    */
+    OneNoteApi.prototype.getSiteLocationFromUrl = function (url) {
+        var escapeAposForOData = url.replace(/'/g, "\"");
+        var encodeUriComponent = encodeURIComponent(escapeAposForOData);
+        var endpointUrl = "/myOrganization/siteCollections/FromUrl(url='" + encodeUriComponent + "')";
+        return this.requestPromise(endpointUrl);
+    };
+    /**
+    * create a group notebook
+    */
+    OneNoteApi.prototype.createGroupNotebook = function (name, groupId) {
+        var data = JSON.stringify({ name: name });
+        return this.requestPromise("/myOrganization/groups/" + groupId + "/notes/notebooks", data);
     };
     /**
     * GetExpands
@@ -470,7 +540,6 @@ exports.NotebookUtils = notebookUtils_1.NotebookUtils;
 
 },{"./batchRequest":1,"./contentType":2,"./errorUtils":3,"./notebookUtils":4,"./oneNoteApiBase":6,"./oneNotePage":7}],6:[function(require,module,exports){
 /// <reference path="../definitions/es6-promise/es6-promise.d.ts"/>
-/// <reference path="../oneNoteApi.d.ts"/>
 /// <reference path="../definitions/content-type/content-type.d.ts"/>
 "use strict";
 var errorUtils_1 = require("./errorUtils");
@@ -479,25 +548,28 @@ var ContentType = require("content-type");
 * Base communication layer for talking to the OneNote APIs.
 */
 var OneNoteApiBase = (function () {
-    function OneNoteApiBase(authHeader, timeout, headers) {
+    function OneNoteApiBase(authHeader, timeout, headers, oneNoteApiHostOverride, queryParams) {
         if (headers === void 0) { headers = {}; }
+        if (oneNoteApiHostOverride === void 0) { oneNoteApiHostOverride = null; }
+        if (queryParams === void 0) { queryParams = null; }
         // Whether or not the OneNote Beta APIs should be used.
         this.useBetaApi = false;
         this.authHeader = authHeader;
         this.timeout = timeout;
         this.headers = headers;
+        this.oneNoteApiHostOverride = oneNoteApiHostOverride;
+        this.queryParams = queryParams;
     }
-    OneNoteApiBase.prototype.requestBasePromise = function (partialUrl, data, contentType, httpMethod) {
-        var fullUrl = this.generateFullBaseUrl(partialUrl);
-        if (contentType === null) {
-            contentType = "application/json";
-        }
-        return this.makeRequest(fullUrl, data, contentType, httpMethod);
-    };
-    OneNoteApiBase.prototype.requestPromise = function (partialUrl, data, contentType, httpMethod) {
+    OneNoteApiBase.prototype.requestPromise = function (url, data, contentType, httpMethod, isFullUrl, urlContainsVersion) {
         var _this = this;
-        var fullUrl = this.generateFullUrl(partialUrl);
-        if (contentType === null) {
+        var fullUrl;
+        if (isFullUrl) {
+            fullUrl = url;
+        }
+        else {
+            fullUrl = this.generateFullUrl(url, urlContainsVersion);
+        }
+        if (!contentType) {
             contentType = "application/json";
         }
         return new Promise((function (resolve, reject) {
@@ -508,13 +580,45 @@ var OneNoteApiBase = (function () {
             });
         }));
     };
-    OneNoteApiBase.prototype.generateFullBaseUrl = function (partialUrl) {
-        var apiRootUrl = this.useBetaApi ? "https://www.onenote.com/api/beta" : "https://www.onenote.com/api/v1.0";
-        return apiRootUrl + partialUrl;
+    OneNoteApiBase.prototype.appendQueryParams = function (url) {
+        var queryParams = this.queryParams;
+        if (!queryParams) {
+            return url;
+        }
+        var queryParamArray = [];
+        for (var key in queryParams) {
+            if (queryParams.hasOwnProperty(key)) {
+                var queryParamValue = encodeURIComponent(queryParams[key]);
+                queryParamArray.push(key + "=" + queryParamValue);
+            }
+        }
+        var serializedQueryParams = queryParamArray.join("&");
+        if (url.indexOf("?") === -1) {
+            return url + "?" + serializedQueryParams;
+        }
+        else {
+            return url + "&" + serializedQueryParams;
+        }
     };
-    OneNoteApiBase.prototype.generateFullUrl = function (partialUrl) {
-        var apiRootUrl = this.useBetaApi ? "https://www.onenote.com/api/beta/me/notes" : "https://www.onenote.com/api/v1.0/me/notes";
-        return apiRootUrl + partialUrl;
+    OneNoteApiBase.prototype.generateUrlUntilVersion = function (urlContainsVersion) {
+        var apiHost;
+        if (this.oneNoteApiHostOverride) {
+            apiHost = this.oneNoteApiHostOverride;
+        }
+        else {
+            apiHost = "https://www.onenote.com";
+        }
+        var apiVersionPortion = "";
+        if (!urlContainsVersion) {
+            apiVersionPortion = this.useBetaApi ? "/api/beta" : "/api/v1.0";
+        }
+        return apiHost + apiVersionPortion;
+    };
+    OneNoteApiBase.prototype.generateFullUrl = function (partialUrl, urlContainsVersion) {
+        return this.generateUrlUntilVersion(urlContainsVersion) + partialUrl;
+    };
+    OneNoteApiBase.prototype.generateFullMeNotesUrl = function (partialUrl, urlContainsVersion) {
+        return this.generateUrlUntilVersion(urlContainsVersion) + "/me/notes" + partialUrl;
     };
     OneNoteApiBase.prototype.makeRequest = function (url, data, contentType, httpMethod) {
         var _this = this;
@@ -567,7 +671,9 @@ var OneNoteApiBase = (function () {
             if (contentType) {
                 request.setRequestHeader("Content-Type", contentType);
             }
-            request.setRequestHeader("Authorization", _this.authHeader);
+            if (_this.authHeader) {
+                request.setRequestHeader("Authorization", _this.authHeader);
+            }
             OneNoteApiBase.addHeadersToRequest(request, _this.headers);
             request.send(data);
         });
@@ -765,9 +871,9 @@ exports.TypedFormData = TypedFormData;
  * obs-text      = %x80-FF
  * quoted-pair   = "\" ( HTAB / SP / VCHAR / obs-text )
  */
-var paramRegExp = /; *([!#$%&'\*\+\-\.\^_`\|~0-9A-Za-z]+) *= *("(?:[\u000b\u0020\u0021\u0023-\u005b\u005d-\u007e\u0080-\u00ff]|\\[\u000b\u0020-\u00ff])*"|[!#$%&'\*\+\-\.\^_`\|~0-9A-Za-z]+) */g
-var textRegExp = /^[\u000b\u0020-\u007e\u0080-\u00ff]+$/
-var tokenRegExp = /^[!#$%&'\*\+\-\.\^_`\|~0-9A-Za-z]+$/
+var PARAM_REGEXP = /; *([!#$%&'*+.^_`|~0-9A-Za-z-]+) *= *("(?:[\u000b\u0020\u0021\u0023-\u005b\u005d-\u007e\u0080-\u00ff]|\\[\u000b\u0020-\u00ff])*"|[!#$%&'*+.^_`|~0-9A-Za-z-]+) */g
+var TEXT_REGEXP = /^[\u000b\u0020-\u007e\u0080-\u00ff]+$/
+var TOKEN_REGEXP = /^[!#$%&'*+.^_`|~0-9A-Za-z-]+$/
 
 /**
  * RegExp to match quoted-pair in RFC 7230 sec 3.2.6
@@ -775,21 +881,21 @@ var tokenRegExp = /^[!#$%&'\*\+\-\.\^_`\|~0-9A-Za-z]+$/
  * quoted-pair = "\" ( HTAB / SP / VCHAR / obs-text )
  * obs-text    = %x80-FF
  */
-var qescRegExp = /\\([\u000b\u0020-\u00ff])/g
+var QESC_REGEXP = /\\([\u000b\u0020-\u00ff])/g
 
 /**
  * RegExp to match chars that must be quoted-pair in RFC 7230 sec 3.2.6
  */
-var quoteRegExp = /([\\"])/g
+var QUOTE_REGEXP = /([\\"])/g
 
 /**
- * RegExp to match type in RFC 6838
+ * RegExp to match type in RFC 7231 sec 3.1.1.1
  *
  * media-type = type "/" subtype
  * type       = token
  * subtype    = token
  */
-var typeRegExp = /^[!#$%&'\*\+\-\.\^_`\|~0-9A-Za-z]+\/[!#$%&'\*\+\-\.\^_`\|~0-9A-Za-z]+$/
+var TYPE_REGEXP = /^[!#$%&'*+.^_`|~0-9A-Za-z-]+\/[!#$%&'*+.^_`|~0-9A-Za-z-]+$/
 
 /**
  * Module exports.
@@ -807,7 +913,7 @@ exports.parse = parse
  * @public
  */
 
-function format(obj) {
+function format (obj) {
   if (!obj || typeof obj !== 'object') {
     throw new TypeError('argument obj is required')
   }
@@ -815,7 +921,7 @@ function format(obj) {
   var parameters = obj.parameters
   var type = obj.type
 
-  if (!type || !typeRegExp.test(type)) {
+  if (!type || !TYPE_REGEXP.test(type)) {
     throw new TypeError('invalid type')
   }
 
@@ -829,7 +935,7 @@ function format(obj) {
     for (var i = 0; i < params.length; i++) {
       param = params[i]
 
-      if (!tokenRegExp.test(param)) {
+      if (!TOKEN_REGEXP.test(param)) {
         throw new TypeError('invalid parameter name')
       }
 
@@ -848,61 +954,61 @@ function format(obj) {
  * @public
  */
 
-function parse(string) {
+function parse (string) {
   if (!string) {
     throw new TypeError('argument string is required')
   }
 
-  if (typeof string === 'object') {
-    // support req/res-like objects as argument
-    string = getcontenttype(string)
+  // support req/res-like objects as argument
+  var header = typeof string === 'object'
+    ? getcontenttype(string)
+    : string
 
-    if (typeof string !== 'string') {
-      throw new TypeError('content-type header is missing from object');
-    }
-  }
-
-  if (typeof string !== 'string') {
+  if (typeof header !== 'string') {
     throw new TypeError('argument string is required to be a string')
   }
 
-  var index = string.indexOf(';')
+  var index = header.indexOf(';')
   var type = index !== -1
-    ? string.substr(0, index).trim()
-    : string.trim()
+    ? header.substr(0, index).trim()
+    : header.trim()
 
-  if (!typeRegExp.test(type)) {
+  if (!TYPE_REGEXP.test(type)) {
     throw new TypeError('invalid media type')
   }
 
-  var key
-  var match
   var obj = new ContentType(type.toLowerCase())
-  var value
 
-  paramRegExp.lastIndex = index
+  // parse parameters
+  if (index !== -1) {
+    var key
+    var match
+    var value
 
-  while (match = paramRegExp.exec(string)) {
-    if (match.index !== index) {
+    PARAM_REGEXP.lastIndex = index
+
+    while ((match = PARAM_REGEXP.exec(header))) {
+      if (match.index !== index) {
+        throw new TypeError('invalid parameter format')
+      }
+
+      index += match[0].length
+      key = match[1].toLowerCase()
+      value = match[2]
+
+      if (value[0] === '"') {
+        // remove quotes and escapes
+        value = value
+          .substr(1, value.length - 2)
+          .replace(QESC_REGEXP, '$1')
+      }
+
+      obj.parameters[key] = value
+    }
+
+    if (index !== header.length) {
       throw new TypeError('invalid parameter format')
     }
-
-    index += match[0].length
-    key = match[1].toLowerCase()
-    value = match[2]
-
-    if (value[0] === '"') {
-      // remove quotes and escapes
-      value = value
-        .substr(1, value.length - 2)
-        .replace(qescRegExp, '$1')
-    }
-
-    obj.parameters[key] = value
-  }
-
-  if (index !== -1 && index !== string.length) {
-    throw new TypeError('invalid parameter format')
   }
 
   return obj
@@ -916,16 +1022,22 @@ function parse(string) {
  * @private
  */
 
-function getcontenttype(obj) {
+function getcontenttype (obj) {
+  var header
+
   if (typeof obj.getHeader === 'function') {
     // res-like
-    return obj.getHeader('content-type')
+    header = obj.getHeader('content-type')
+  } else if (typeof obj.headers === 'object') {
+    // req-like
+    header = obj.headers && obj.headers['content-type']
   }
 
-  if (typeof obj.headers === 'object') {
-    // req-like
-    return obj.headers && obj.headers['content-type']
+  if (typeof header !== 'string') {
+    throw new TypeError('content-type header is missing from object')
   }
+
+  return header
 }
 
 /**
@@ -936,26 +1048,26 @@ function getcontenttype(obj) {
  * @private
  */
 
-function qstring(val) {
+function qstring (val) {
   var str = String(val)
 
   // no need to quote tokens
-  if (tokenRegExp.test(str)) {
+  if (TOKEN_REGEXP.test(str)) {
     return str
   }
 
-  if (str.length > 0 && !textRegExp.test(str)) {
+  if (str.length > 0 && !TEXT_REGEXP.test(str)) {
     throw new TypeError('invalid parameter value')
   }
 
-  return '"' + str.replace(quoteRegExp, '\\$1') + '"'
+  return '"' + str.replace(QUOTE_REGEXP, '\\$1') + '"'
 }
 
 /**
  * Class to represent a content type.
  * @private
  */
-function ContentType(type) {
+function ContentType (type) {
   this.parameters = Object.create(null)
   this.type = type
 }

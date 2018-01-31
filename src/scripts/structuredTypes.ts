@@ -1,26 +1,26 @@
-interface Identifyable {
+export interface Identifyable {
 	id: string;
 	self: string;
 }
 
-interface HistoryTime {
+export interface HistoryTime {
 	createdTime: Date;
 	lastModifiedTime: Date;
 }
 
-interface HistoryBy {
+export interface HistoryBy {
 	createdBy: string;
 	lastModifiedBy: string;
 }
 
-interface SectionAndSectionGroupParent {
+export interface SectionAndSectionGroupParent {
 	sectionsUrl: string;
 	sectionGroupsUrl: string;
 	sections: Section[];
 	sectionGroups: SectionGroup[];
 }
 
-interface PageParent {
+export interface PageParent {
 	pagesUrl: string;
 	pages: Page[];
 }

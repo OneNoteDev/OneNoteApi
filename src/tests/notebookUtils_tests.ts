@@ -1,8 +1,9 @@
 /// <reference path="../definitions/qunit/qunit.d.ts" />
 
 import {SectionParent, SectionPathElement, NotebookUtils} from "../scripts/notebookUtils";
+import {SectionGroup, Section, Notebook} from "../scripts/structuredTypes";
 
-let createNotebook = (id: string, isDefault: boolean, sectionGroups: OneNoteApi.SectionGroup[], sections: OneNoteApi.Section[]): OneNoteApi.Notebook => {
+let createNotebook = (id: string, isDefault: boolean, sectionGroups: SectionGroup[], sections: Section[]): Notebook => {
 	return {
 		name: id.toUpperCase(),
 		isDefault: isDefault,
@@ -22,7 +23,7 @@ let createNotebook = (id: string, isDefault: boolean, sectionGroups: OneNoteApi.
 	};
 };
 
-let createSectionGroup = (id: string, sectionGroups: OneNoteApi.SectionGroup[], sections: OneNoteApi.Section[]): OneNoteApi.SectionGroup => {
+let createSectionGroup = (id: string, sectionGroups: SectionGroup[], sections: Section[]): SectionGroup => {
 	return {
 		name: id.toUpperCase(),
 		id: id.toLowerCase(),
@@ -38,7 +39,7 @@ let createSectionGroup = (id: string, sectionGroups: OneNoteApi.SectionGroup[], 
 	};
 };
 
-let createSection = (id: string, isDefault: boolean): OneNoteApi.Section => {
+let createSection = (id: string, isDefault: boolean): Section => {
 	return {
 		name: id.toUpperCase(),
 		isDefault: isDefault,

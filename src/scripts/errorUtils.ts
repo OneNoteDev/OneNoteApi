@@ -1,4 +1,4 @@
-/// <reference path="../oneNoteApi.d.ts"/>
+/// <reference path="oneNoteApi.ts"/>
 
 export enum RequestErrorType {
 	NETWORK_ERROR,
@@ -7,9 +7,20 @@ export enum RequestErrorType {
 	UNABLE_TO_PARSE_RESPONSE
 }
 
+export interface GenericError {
+	error: string;
+}
+
+export interface RequestError extends GenericError {
+	timeout?: number;
+	statusCode: number;
+	response: string;
+	responseHeaders: { [key: string]: string };
+}
+
 export class ErrorUtils {
-	public static createRequestErrorObject(request: XMLHttpRequest, errorType: RequestErrorType): OneNoteApi.RequestError {
-		if (request === undefined || request === null) {
+	public static createRequestErrorObject(request: XMLHttpRequest, errorType: RequestErrorType): RequestError {
+		if (!request) {
 			return;
 		}
 
@@ -20,7 +31,7 @@ export class ErrorUtils {
 	 * Split out for unit testing purposes.
 	 * Meant only to be called by ErrorUtils.createRequestErrorObject and UTs.
 	 */
-	public static createRequestErrorObjectInternal(status: number, readyState: number, response: any, responseHeaders: string, timeout: number, errorType: RequestErrorType): OneNoteApi.RequestError {
+	public static createRequestErrorObjectInternal(status: number, readyState: number, response: any, responseHeaders: string, timeout: number, errorType: RequestErrorType): RequestError {
 		let errorMessage: string = ErrorUtils.formatRequestErrorTypeAsString(errorType);
 		if (errorType === RequestErrorType.NETWORK_ERROR) {
 			errorMessage += ErrorUtils.getAdditionalNetworkErrorInfo(readyState);
@@ -29,7 +40,7 @@ export class ErrorUtils {
 			status = 408;
 		}
 
-		let requestErrorObject: OneNoteApi.RequestError = {
+		let requestErrorObject: RequestError = {
 			error: errorMessage,
 			statusCode: status,
 			responseHeaders: ErrorUtils.convertResponseHeadersToJsonInternal(responseHeaders),
