@@ -37,7 +37,13 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
             * GetPage
             */
         getPage(pageId: string): Promise<ResponsePackage<any>>;
+        /**
+            * GetPageContent
+            */
         getPageContent(pageId: string): Promise<ResponsePackage<any>>;
+        /**
+            * GetPages
+            */
         getPages(options: {
                 top?: number;
                 sectionId?: string;
@@ -58,6 +64,10 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
          * GetNotebooksWithExpandedSections
          */
         getNotebooksWithExpandedSections(expands?: number, excludeReadOnlyNotebooks?: boolean): Promise<ResponsePackage<any>>;
+        /**
+         * GetNotebooksWithExpandedSections
+         */
+        getNotebookBySelfUrl(selfUrl: string, expands?: number): Promise<ResponsePackage<any>>;
         /**
          * GetNotebookbyName
          */

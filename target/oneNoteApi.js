@@ -381,10 +381,16 @@ var OneNoteApi = (function (_super) {
         var pagePath = "/pages/" + pageId;
         return this.requestPromise(pagePath);
     };
+    /**
+     * GetPageContent
+     */
     OneNoteApi.prototype.getPageContent = function (pageId) {
         var pagePath = "/pages/" + pageId + "/content";
         return this.requestPromise(pagePath);
     };
+    /**
+     * GetPages
+     */
     OneNoteApi.prototype.getPages = function (options) {
         var pagePath = "/pages";
         if (options.top > 0 && options.top === Math.floor(options.top)) {
@@ -425,6 +431,13 @@ var OneNoteApi = (function (_super) {
         if (expands === void 0) { expands = 2; }
         if (excludeReadOnlyNotebooks === void 0) { excludeReadOnlyNotebooks = true; }
         return this.requestPromise(this.getNotebooksUrl(expands, excludeReadOnlyNotebooks));
+    };
+    /**
+    * GetNotebooksWithExpandedSections
+    */
+    OneNoteApi.prototype.getNotebookBySelfUrl = function (selfUrl, expands) {
+        if (expands === void 0) { expands = 2; }
+        return this.requestPromise(selfUrl + "?" + this.getExpands(expands), null, null, null, true /* isFullUrl */);
     };
     /**
     * GetNotebookbyName
