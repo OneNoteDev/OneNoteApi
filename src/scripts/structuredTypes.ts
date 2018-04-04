@@ -60,7 +60,10 @@ export interface Notebook extends Identifyable, HistoryTime, HistoryBy, SectionA
 	isDefault: boolean;
 	userRole: Object;
 	isShared: boolean;
-	links: Object;
+	links: {
+		oneNoteClientUrl: { href: string };
+		oneNoteWebUrl: { href: string };
+	};
 }
 
 export interface SectionGroup extends Identifyable, HistoryTime, HistoryBy, SectionAndSectionGroupParent {
