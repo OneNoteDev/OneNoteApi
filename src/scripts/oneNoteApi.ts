@@ -36,7 +36,7 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	* GetRecentNotebooks
 	*/
 	public getRecentNotebooks(includePersonal: boolean): Promise<ResponsePackage<any>> {
-		let url = "/notebooks/Microsoft.OneNote.Api.GetRecentNotebooks(includePersonalNotebooks=" + includePersonal + ")";
+		let url = "/me/notes/notebooks/Microsoft.OneNote.Api.GetRecentNotebooks(includePersonalNotebooks=" + includePersonal + ")";
 
 		return this.requestPromise(url);
 	}
@@ -78,7 +78,7 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	 * GetPage
 	 */
 	public getPage(pageId: string): Promise<ResponsePackage<any>> {
-		let pagePath = "/pages/" + pageId;
+		let pagePath = "/me/notes/pages/" + pageId;
 		return this.requestPromise(pagePath);
 	}
 
@@ -86,7 +86,7 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	 * GetPageContent
 	 */
 	public getPageContent(pageId: string): Promise<ResponsePackage<any>> {
-		let pagePath = "/pages/" + pageId + "/content";
+		let pagePath = "/me/notes/pages/" + pageId + "/content";
 		return this.requestPromise(pagePath);
 	}
 
@@ -101,7 +101,7 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 		}
 
 		if (options.sectionId) {
-			pagePath = "/sections/" + options.sectionId + pagePath;
+			pagePath = "/me/notes/sections/" + options.sectionId + pagePath;
 		}
 
 		return this.requestPromise(pagePath);
@@ -111,7 +111,7 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	 * UpdatePage
 	 */
 	public updatePage(pageId: string, revisions: Revision[]): Promise<ResponsePackage<any>> {
-		let pagePath = "/pages/" + pageId;
+		let pagePath = "/me/notes/pages/" + pageId;
 		let url = pagePath + "/content";
 
 		return this.requestPromise(url, JSON.stringify(revisions), "application/json", "PATCH");
@@ -124,7 +124,7 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 		let obj: Object = { name: name };
 		let data = JSON.stringify(obj);
 
-		return this.requestPromise("/notebooks/" + notebookId + "/sections/", data);
+		return this.requestPromise("/me/notes/notebooks/" + notebookId + "/sections/", data);
 	}
 
 	/**
@@ -152,14 +152,14 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	* GetNotebookbyName
 	*/
 	public getNotebookByName(name: string): Promise<ResponsePackage<any>> {
-		return this.requestPromise("/notebooks?filter=name%20eq%20%27" + encodeURI(name) + "%27&orderby=createdTime");
+		return this.requestPromise("/me/notes/notebooks?filter=name%20eq%20%27" + encodeURI(name) + "%27&orderby=createdTime");
 	}
 
 	/**
 	* GetDefaultNotebook
 	*/
 	public getDefaultNotebook(): Promise<ResponsePackage<any>> {
-		return this.requestPromise("/notebooks?filter=isDefault%20eq%20true%20");
+		return this.requestPromise("/me/notes/notebooks?filter=isDefault%20eq%20true%20");
 	}
 
 	/**
@@ -220,14 +220,14 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 		// it does not include a notebook where user has Read only permissions.
 		let filter = (excludeReadOnlyNotebooks) ? "$filter=userRole%20ne%20Microsoft.OneNote.Api.UserRole'Reader'" : "";
 
-		return "/notebooks?" + filter + (numExpands ? "&" + this.getExpands(numExpands) : "");
+		return "/me/notes/notebooks?" + filter + (numExpands ? "&" + this.getExpands(numExpands) : "");
 	}
 
 	/**
 	* GetSearchUrl
 	*/
 	private getSearchUrl(query: string): string {
-		return "/pages?search=" + query;
+		return "/me/notes/pages?search=" + query;
 	}
 
 	/**
