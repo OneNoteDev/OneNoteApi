@@ -69,7 +69,7 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	/**
 	 * SendBatchRequest
 	 **/
-	public sendBatchRequest(batchRequest: BatchRequest) {
+	public sendBatchRequest(batchRequest: BatchRequest): Promise<ResponsePackage<any>> {
 		this.enableBetaApi();
 		return this.requestPromise("/$batch", batchRequest.getRequestBody(), batchRequest.getContentType(), "POST").then(this.disableBetaApi.bind(this));
 	}
