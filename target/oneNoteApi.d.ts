@@ -32,7 +32,7 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
         /**
             * SendBatchRequest
             **/
-        sendBatchRequest(batchRequest: BatchRequest): Promise<{}>;
+        sendBatchRequest(batchRequest: BatchRequest): Promise<ResponsePackage<any>>;
         /**
             * GetPage
             */
