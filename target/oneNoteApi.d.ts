@@ -57,6 +57,10 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
          */
         createSection(notebookId: string, name: string): Promise<ResponsePackage<any>>;
         /**
+         * CreateSectionUnderSectionGroup
+         */
+        createSectionUnderSectionGroup(sectionGroupId: string, name: string): Promise<ResponsePackage<any>>;
+        /**
          * GetNotebooks
          */
         getNotebooks(excludeReadOnlyNotebooks?: boolean): Promise<ResponsePackage<any>>;
@@ -106,6 +110,7 @@ export interface IOneNoteApi {
     }): Promise<ResponsePackage<any>>;
     updatePage(pageId: string, revisions: Revision[]): Promise<ResponsePackage<any>>;
     createSection(notebookId: string, name: string): Promise<ResponsePackage<any>>;
+    createSectionUnderSectionGroup(sectionGroupId: string, name: string): Promise<ResponsePackage<any>>;
     getNotebooks(excludeReadOnlyNotebooks?: boolean): Promise<ResponsePackage<any>>;
     getNotebooksWithExpandedSections(expands?: number, excludeReadOnlyNotebooks?: boolean): Promise<ResponsePackage<any>>;
     getNotebookByName(name: string): Promise<ResponsePackage<any>>;
@@ -229,7 +234,14 @@ export interface Notebook extends Identifyable, HistoryTime, HistoryBy, SectionA
     isDefault: boolean;
     userRole: Object;
     isShared: boolean;
-    links: Object;
+    links: {
+        oneNoteClientUrl: {
+            href: string;
+        };
+        oneNoteWebUrl: {
+            href: string;
+        };
+    };
 }
 export interface SectionGroup extends Identifyable, HistoryTime, HistoryBy, SectionAndSectionGroupParent {
     name: string;
