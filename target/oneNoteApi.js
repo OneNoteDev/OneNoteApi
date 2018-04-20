@@ -343,7 +343,7 @@ var OneNoteApi = (function (_super) {
     * GetRecentNotebooks
     */
     OneNoteApi.prototype.getRecentNotebooks = function (includePersonal) {
-        var url = "/notebooks/Microsoft.OneNote.Api.GetRecentNotebooks(includePersonalNotebooks=" + includePersonal + ")";
+        var url = "/me/notes/notebooks/Microsoft.OneNote.Api.GetRecentNotebooks(includePersonalNotebooks=" + includePersonal + ")";
         return this.requestPromise(url);
     };
     /**
@@ -378,14 +378,14 @@ var OneNoteApi = (function (_super) {
      * GetPage
      */
     OneNoteApi.prototype.getPage = function (pageId) {
-        var pagePath = "/pages/" + pageId;
+        var pagePath = "/me/notes/pages/" + pageId;
         return this.requestPromise(pagePath);
     };
     /**
      * GetPageContent
      */
     OneNoteApi.prototype.getPageContent = function (pageId) {
-        var pagePath = "/pages/" + pageId + "/content";
+        var pagePath = "/me/notes/pages/" + pageId + "/content";
         return this.requestPromise(pagePath);
     };
     /**
@@ -397,7 +397,7 @@ var OneNoteApi = (function (_super) {
             pagePath += "?top=" + options.top;
         }
         if (options.sectionId) {
-            pagePath = "/sections/" + options.sectionId + pagePath;
+            pagePath = "/me/notes/sections/" + options.sectionId + pagePath;
         }
         return this.requestPromise(pagePath);
     };
@@ -405,7 +405,7 @@ var OneNoteApi = (function (_super) {
      * UpdatePage
      */
     OneNoteApi.prototype.updatePage = function (pageId, revisions) {
-        var pagePath = "/pages/" + pageId;
+        var pagePath = "/me/notes/pages/" + pageId;
         var url = pagePath + "/content";
         return this.requestPromise(url, JSON.stringify(revisions), "application/json", "PATCH");
     };
@@ -415,7 +415,15 @@ var OneNoteApi = (function (_super) {
     OneNoteApi.prototype.createSection = function (notebookId, name) {
         var obj = { name: name };
         var data = JSON.stringify(obj);
-        return this.requestPromise("/notebooks/" + notebookId + "/sections/", data);
+        return this.requestPromise("/me/notes/notebooks/" + notebookId + "/sections/", data);
+    };
+    /**
+    * CreateSectionUnderSectionGroup
+    */
+    OneNoteApi.prototype.createSectionUnderSectionGroup = function (sectionGroupId, name) {
+        var obj = { name: name };
+        var data = JSON.stringify(obj);
+        return this.requestPromise("/me/notes/sectionGroups/" + sectionGroupId + "/sections/", data);
     };
     /**
     * GetNotebooks
@@ -443,13 +451,13 @@ var OneNoteApi = (function (_super) {
     * GetNotebookbyName
     */
     OneNoteApi.prototype.getNotebookByName = function (name) {
-        return this.requestPromise("/notebooks?filter=name%20eq%20%27" + encodeURI(name) + "%27&orderby=createdTime");
+        return this.requestPromise("/me/notes/notebooks?filter=name%20eq%20%27" + encodeURI(name) + "%27&orderby=createdTime");
     };
     /**
     * GetDefaultNotebook
     */
     OneNoteApi.prototype.getDefaultNotebook = function () {
-        return this.requestPromise("/notebooks?filter=isDefault%20eq%20true%20");
+        return this.requestPromise("/me/notes/notebooks?filter=isDefault%20eq%20true%20");
     };
     /**
     * PagesSearch
@@ -503,13 +511,13 @@ var OneNoteApi = (function (_super) {
         // Since this url is most often used to save content to a specific notebook, by default
         // it does not include a notebook where user has Read only permissions.
         var filter = (excludeReadOnlyNotebooks) ? "$filter=userRole%20ne%20Microsoft.OneNote.Api.UserRole'Reader'" : "";
-        return "/notebooks?" + filter + (numExpands ? "&" + this.getExpands(numExpands) : "");
+        return "/me/notes/notebooks?" + filter + (numExpands ? "&" + this.getExpands(numExpands) : "");
     };
     /**
     * GetSearchUrl
     */
     OneNoteApi.prototype.getSearchUrl = function (query) {
-        return "/pages?search=" + query;
+        return "/me/notes/pages?search=" + query;
     };
     /**
      * Helper Method to use beta features OR to use beta endpoints
