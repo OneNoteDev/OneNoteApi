@@ -128,6 +128,16 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	}
 
 	/**
+	* CreateSectionUnderSectionGroup
+	*/
+	public createSectionUnderSectionGroup(sectionGroupId: string, name: string): Promise<ResponsePackage<any>> {
+		let obj: Object = { name: name };
+		let data = JSON.stringify(obj);
+
+		return this.requestPromise("/me/notes/sectionGroups/" + sectionGroupId + "/sections/", data);
+	}
+
+	/**
 	* GetNotebooks
 	*/
 	public getNotebooks(excludeReadOnlyNotebooks = true): Promise<ResponsePackage<any>> {

@@ -12,6 +12,7 @@ export interface IOneNoteApi {
 	getPages(options: { top?: number, sectionId?: string }): Promise<ResponsePackage<any>>;
 	updatePage(pageId: string, revisions: Revision[]): Promise<ResponsePackage<any>>;
 	createSection(notebookId: string, name: string): Promise<ResponsePackage<any>>;
+	createSectionUnderSectionGroup(sectionGroupId: string, name: string): Promise<ResponsePackage<any>>;
 	getNotebooks(excludeReadOnlyNotebooks?: boolean): Promise<ResponsePackage<any>>;
 	getNotebooksWithExpandedSections(expands?: number, excludeReadOnlyNotebooks?: boolean): Promise<ResponsePackage<any>>;
 	getNotebookByName(name: string): Promise<ResponsePackage<any>>;
