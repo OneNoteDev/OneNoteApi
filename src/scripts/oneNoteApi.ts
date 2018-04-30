@@ -258,5 +258,4 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 export {ContentType} from "./contentType";
 export {OneNotePage} from "./oneNotePage";
 export {BatchRequest} from "./batchRequest";
-export {ErrorUtils, RequestErrorType} from "./errorUtils";
-export { NotebookUtils } from "./notebookUtils";
+export { ErrorUtils, RequestErrorType } from "./errorUtils";

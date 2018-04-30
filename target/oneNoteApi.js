@@ -20,7 +20,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-*/(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.OneNoteApi = f()}})(function(){var define,module,exports;return (function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
+*/(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.OneNoteApi = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 "use strict";
 /**
  * The BATCH API allows a user to execute multiple OneNoteApi actions in a single HTTP request.
@@ -166,144 +166,6 @@ var ErrorUtils = (function () {
 exports.ErrorUtils = ErrorUtils;
 
 },{}],4:[function(require,module,exports){
-"use strict";
-var NotebookUtils = (function () {
-    function NotebookUtils() {
-    }
-    /**
-     * Checks to see if the section exists in the notebook list.
-     *
-     * @param notebooks List of notebooks to search
-     * @param sectionId Section id to check the existence of
-     * @return true if the section exists in the notebooks; false otherwise
-     */
-    NotebookUtils.sectionExistsInNotebooks = function (notebooks, sectionId) {
-        if (!notebooks || !sectionId) {
-            return false;
-        }
-        for (var i = 0; i < notebooks.length; i++) {
-            if (NotebookUtils.sectionExistsInParent(notebooks[i], sectionId)) {
-                return true;
-            }
-        }
-        return false;
-    };
-    /**
-     * Checks to see if the section exists in the notebook or section group.
-     *
-     * @param parent Notebook or section group to search
-     * @param sectionId Section id to check the existence of
-     * @return true if the section exists in the parent; false otherwise
-     */
-    NotebookUtils.sectionExistsInParent = function (parent, sectionId) {
-        if (!parent || !sectionId) {
-            return false;
-        }
-        if (parent.sections) {
-            for (var i = 0; i < parent.sections.length; i++) {
-                var section = parent.sections[i];
-                if (section && section.id === sectionId) {
-                    return true;
-                }
-            }
-        }
-        if (parent.sectionGroups) {
-            for (var i = 0; i < parent.sectionGroups.length; i++) {
-                if (NotebookUtils.sectionExistsInParent(parent.sectionGroups[i], sectionId)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    };
-    /**
-     * Retrieves the path starting from the notebook to the first ancestor section found that
-     * meets a given criteria.
-     *
-     * @param notebooks List of notebooks to search
-     * @return section path (e.g., [notebook, sectionGroup, section]); undefined if there is none
-     */
-    NotebookUtils.getPathFromNotebooksToSection = function (notebooks, filter) {
-        if (!notebooks || !filter) {
-            return undefined;
-        }
-        for (var i = 0; i < notebooks.length; i++) {
-            var notebook = notebooks[i];
-            var notebookSearchResult = NotebookUtils.getPathFromParentToSection(notebook, filter);
-            if (notebookSearchResult) {
-                return notebookSearchResult;
-            }
-        }
-        return undefined;
-    };
-    /**
-     * Recursively retrieves the path starting from the specified parent to the first ancestor
-     * section found that meets a given criteria.
-     *
-     * @param parent The notebook or section group to search
-     * @return section path (e.g., [parent, sectionGroup, sectionGroup, section]); undefined if there is none
-     */
-    NotebookUtils.getPathFromParentToSection = function (parent, filter) {
-        if (!parent || !filter) {
-            return undefined;
-        }
-        if (parent.sections) {
-            for (var i = 0; i < parent.sections.length; i++) {
-                var section = parent.sections[i];
-                if (filter(section)) {
-                    return [parent, section];
-                }
-            }
-        }
-        if (parent.sectionGroups) {
-            for (var i = 0; i < parent.sectionGroups.length; i++) {
-                var sectionGroup = parent.sectionGroups[i];
-                var sectionGroupSearchResult = NotebookUtils.getPathFromParentToSection(sectionGroup, filter);
-                if (sectionGroupSearchResult) {
-                    sectionGroupSearchResult.unshift(parent);
-                    return sectionGroupSearchResult;
-                }
-            }
-        }
-        return undefined;
-    };
-    /**
-     * Computes the maximum depth of the notebooks list, including sections.
-     *
-     * @param notebooks List of notebooks
-     * @return Maximum depth
-     */
-    NotebookUtils.getDepthOfNotebooks = function (notebooks) {
-        if (!notebooks || notebooks.length === 0) {
-            return 0;
-        }
-        return notebooks.map(function (notebook) { return NotebookUtils.getDepthOfParent(notebook); }).reduce(function (d1, d2) { return Math.max(d1, d2); });
-    };
-    /**
-     * Computes the maximum depth of the non-section parent entity, including sections.
-     *
-     * @param notebooks Non-section parent entity
-     * @return Maximum depth
-     */
-    NotebookUtils.getDepthOfParent = function (parent) {
-        if (!parent) {
-            return 0;
-        }
-        var containsAtLeastOneSection = parent.sections && parent.sections.length > 0;
-        var maxDepth = containsAtLeastOneSection ? 1 : 0;
-        if (parent.sectionGroups) {
-            for (var i = 0; i < parent.sectionGroups.length; i++) {
-                maxDepth = Math.max(NotebookUtils.getDepthOfParent(parent.sectionGroups[i]), maxDepth);
-            }
-        }
-        // Include the parent itself
-        return maxDepth + 1;
-    };
-    return NotebookUtils;
-}());
-exports.NotebookUtils = NotebookUtils;
-
-},{}],5:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -543,10 +405,8 @@ exports.BatchRequest = batchRequest_1.BatchRequest;
 var errorUtils_1 = require("./errorUtils");
 exports.ErrorUtils = errorUtils_1.ErrorUtils;
 exports.RequestErrorType = errorUtils_1.RequestErrorType;
-var notebookUtils_1 = require("./notebookUtils");
-exports.NotebookUtils = notebookUtils_1.NotebookUtils;
 
-},{"./batchRequest":1,"./contentType":2,"./errorUtils":3,"./notebookUtils":4,"./oneNoteApiBase":6,"./oneNotePage":7}],6:[function(require,module,exports){
+},{"./batchRequest":1,"./contentType":2,"./errorUtils":3,"./oneNoteApiBase":5,"./oneNotePage":6}],5:[function(require,module,exports){
 /// <reference path="../definitions/es6-promise/es6-promise.d.ts"/>
 /// <reference path="../definitions/content-type/content-type.d.ts"/>
 "use strict";
@@ -699,7 +559,7 @@ var OneNoteApiBase = (function () {
 }());
 exports.OneNoteApiBase = OneNoteApiBase;
 
-},{"./errorUtils":3,"content-type":9}],7:[function(require,module,exports){
+},{"./errorUtils":3,"content-type":8}],6:[function(require,module,exports){
 "use strict";
 var typedFormData_1 = require("./typedFormData");
 /**
@@ -821,7 +681,7 @@ var OneNotePage = (function () {
 }());
 exports.OneNotePage = OneNotePage;
 
-},{"./typedFormData":8}],8:[function(require,module,exports){
+},{"./typedFormData":7}],7:[function(require,module,exports){
 "use strict";
 // A substitute for FormData that allows the ability to set content-type per part
 var TypedFormData = (function () {
@@ -856,7 +716,7 @@ var TypedFormData = (function () {
 }());
 exports.TypedFormData = TypedFormData;
 
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 /*!
  * content-type
  * Copyright(c) 2015 Douglas Christopher Wilson
@@ -1080,5 +940,5 @@ function ContentType (type) {
   this.type = type
 }
 
-},{}]},{},[5])(5)
+},{}]},{},[4])(4)
 });
