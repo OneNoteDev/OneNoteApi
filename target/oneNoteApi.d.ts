@@ -310,57 +310,6 @@ export class ErrorUtils {
         };
 }
 
-export type SectionParent = Notebook | SectionGroup;
-export type SectionPathElement = SectionParent | Section;
-export class NotebookUtils {
-        /**
-            * Checks to see if the section exists in the notebook list.
-            *
-            * @param notebooks List of notebooks to search
-            * @param sectionId Section id to check the existence of
-            * @return true if the section exists in the notebooks; false otherwise
-            */
-        static sectionExistsInNotebooks(notebooks: Notebook[], sectionId: string): boolean;
-        /**
-            * Checks to see if the section exists in the notebook or section group.
-            *
-            * @param parent Notebook or section group to search
-            * @param sectionId Section id to check the existence of
-            * @return true if the section exists in the parent; false otherwise
-            */
-        static sectionExistsInParent(parent: SectionParent, sectionId: string): boolean;
-        /**
-            * Retrieves the path starting from the notebook to the first ancestor section found that
-            * meets a given criteria.
-            *
-            * @param notebooks List of notebooks to search
-            * @return section path (e.g., [notebook, sectionGroup, section]); undefined if there is none
-            */
-        static getPathFromNotebooksToSection(notebooks: Notebook[], filter: (s: Section) => boolean): SectionPathElement[];
-        /**
-            * Recursively retrieves the path starting from the specified parent to the first ancestor
-            * section found that meets a given criteria.
-            *
-            * @param parent The notebook or section group to search
-            * @return section path (e.g., [parent, sectionGroup, sectionGroup, section]); undefined if there is none
-            */
-        static getPathFromParentToSection(parent: SectionParent, filter: (s: Section) => boolean): SectionPathElement[];
-        /**
-            * Computes the maximum depth of the notebooks list, including sections.
-            *
-            * @param notebooks List of notebooks
-            * @return Maximum depth
-            */
-        static getDepthOfNotebooks(notebooks: Notebook[]): number;
-        /**
-            * Computes the maximum depth of the non-section parent entity, including sections.
-            *
-            * @param notebooks Non-section parent entity
-            * @return Maximum depth
-            */
-        static getDepthOfParent(parent: SectionParent): number;
-}
-
 export type Blobbable = string | ArrayBuffer;
 export interface DataPart {
     name: string;
