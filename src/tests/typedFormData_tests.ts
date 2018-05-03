@@ -1,5 +1,3 @@
-/// <reference path="../definitions/qunit/qunit.d.ts" />
-
 import {TypedFormData} from "../scripts/typedFormData";
 
 QUnit.module("typedFormData", {});

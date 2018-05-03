@@ -6,6 +6,9 @@
   "homepage": "https://github.com/OneNoteDev/OneNoteApi#readme",
   "author": "Microsoft Coorporation",
   "license": "MIT",
+  "scripts": {
+    "build": "webpack"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/OneNoteDev/OneNoteApi.git"
@@ -31,15 +34,21 @@
     "node-qunit-phantomjs": "^1.4.0",
     "qunitjs": "^1.20.0",
     "run-sequence": "^1.1.4",
+    "ts-loader": "^4.2.0",
     "tsd": "^0.6.5",
     "tslint": "^3.9.0",
-    "typescript": "^1.7.3",
-    "vinyl-source-stream": "^1.1.0"
+    "typescript": "^2.8.3",
+    "vinyl-source-stream": "^1.1.0",
+    "webpack": "^4.6.0",
+    "webpack-cli": "^2.1.2"
   },
   "files": [
     "README.*",
     "target/oneNoteApi.d.ts",
     "target/oneNoteApi.js",
     "target/oneNoteApi.min.js"
-  ]
+  ],
+  "dependencies": {
+    "es6-promise": "^4.2.4"
+  }
 }

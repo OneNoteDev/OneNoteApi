@@ -8,3 +8,5 @@ target/modules
 target/tests
 *.user
 .idea
+/target
+/dist

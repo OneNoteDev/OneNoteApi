@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es5",
+    "lib": ["es5", "dom", "es2015.promise"],
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node",
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "suppressImplicitAnyIndexErrors": true,
+    "noUnusedLocals": false,
+    "declaration": true,
+    "declarationDir": "types"
+  },
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
