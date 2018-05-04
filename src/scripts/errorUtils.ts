@@ -1,5 +1,3 @@
-/// <reference path="oneNoteApi.ts"/>
-
 export enum RequestErrorType {
 	NETWORK_ERROR,
 	UNEXPECTED_RESPONSE_STATUS,

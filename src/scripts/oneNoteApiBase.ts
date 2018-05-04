@@ -1,5 +1,3 @@
-/// <reference path="../definitions/content-type/content-type.d.ts"/>
-
 import {ErrorUtils, RequestErrorType, RequestError} from "./errorUtils";
 
 import * as ContentType from "content-type";

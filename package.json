@@ -2,12 +2,13 @@
   "version": "2.0.6",
   "name": "onenoteapi",
   "description": "JavaScript library to make calling the OneNote API easier.",
-  "main": "target/oneNoteApi.js",
+  "main": "dist/OneNoteApi.js",
+  "types": "dist/OneNoteApi.d.ts",
   "homepage": "https://github.com/OneNoteDev/OneNoteApi#readme",
   "author": "Microsoft Coorporation",
   "license": "MIT",
   "scripts": {
-    "build": "webpack"
+    "build": "rimraf dist && cross-env NODE_ENV=production webpack --progress --colors && rimraf dist/types"
   },
   "repository": {
     "type": "git",
@@ -15,9 +16,10 @@
   },
   "devDependencies": {
     "browserify": "^13.0.0",
-    "content-type": "^1.0.2",
+    "cross-env": "^5.1.4",
     "del": "^2.0.2",
     "dts-bundle": "^0.7.3",
+    "dts-bundle-webpack": "^1.0.0",
     "file-system": "^2.2.1",
     "globby": "^4.0.0",
     "gulp": "^3.9.0",
@@ -33,22 +35,23 @@
     "merge-stream": "^1.0.0",
     "node-qunit-phantomjs": "^1.4.0",
     "qunitjs": "^1.20.0",
+    "rimraf": "^2.6.2",
     "run-sequence": "^1.1.4",
     "ts-loader": "^4.2.0",
     "tsd": "^0.6.5",
-    "tslint": "^3.9.0",
+    "tslint": "^5.10.0",
     "typescript": "^2.8.3",
     "vinyl-source-stream": "^1.1.0",
     "webpack": "^4.6.0",
-    "webpack-cli": "^2.1.2"
+    "webpack-cli": "^2.1.2",
+    "webpack-merge": "^4.1.2"
   },
   "files": [
     "README.*",
-    "target/oneNoteApi.d.ts",
-    "target/oneNoteApi.js",
-    "target/oneNoteApi.min.js"
+    "dist/**/*"
   ],
   "dependencies": {
+    "content-type": "^1.0.2",
     "es6-promise": "^4.2.4"
   }
 }
