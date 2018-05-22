@@ -1,7 +1,8 @@
-/// <reference path="../definitions/qunit/qunit.d.ts" />
 
-import {SectionParent, SectionPathElement, NotebookUtils} from "../scripts/notebookUtils";
+import {SectionPathElement, NotebookUtils} from "../scripts/notebookUtils";
 import {SectionGroup, Section, Notebook} from "../scripts/structuredTypes";
+import {test, ok, QUnit, strictEqual} from "qunitjs";
+
 
 let createNotebook = (id: string, isDefault: boolean, sectionGroups: SectionGroup[], sections: Section[]): Notebook => {
 	return {

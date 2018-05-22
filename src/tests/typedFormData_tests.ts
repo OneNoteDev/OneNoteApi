@@ -1,4 +1,5 @@
 import {TypedFormData} from "../scripts/typedFormData";
+import {QUnit, test, QUnitAssert, ok} from "qunitjs";
 
 QUnit.module("typedFormData", {});
 
