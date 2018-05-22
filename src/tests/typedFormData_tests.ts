@@ -1,6 +1,5 @@
-/// <reference path="../definitions/qunit/qunit.d.ts" />
-
 import {TypedFormData} from "../scripts/typedFormData";
+import {QUnit, test, QUnitAssert, ok} from "qunitjs";
 
 QUnit.module("typedFormData", {});
 

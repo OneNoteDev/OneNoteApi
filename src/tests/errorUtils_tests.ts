@@ -1,5 +1,4 @@
-/// <reference path="../definitions/qunit/qunit.d.ts" />
-
+import {QUnit, test, deepEqual} from "qunitjs";
 import {ErrorUtils, RequestErrorType, RequestError} from "../scripts/errorUtils";
 
 QUnit.module("requestError", {});

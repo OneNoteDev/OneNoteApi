@@ -1,9 +1,8 @@
-/// <reference path="../definitions/es6-promise/es6-promise.d.ts"/>
-/// <reference path="../definitions/content-type/content-type.d.ts"/>
-
 import {ErrorUtils, RequestErrorType, RequestError} from "./errorUtils";
 
 import * as ContentType from "content-type";
+import {Promise} from "es6-promise";
+
 export type XHRData = ArrayBufferView | Blob | Document | string | FormData;
 
 export interface ResponsePackage<T> {

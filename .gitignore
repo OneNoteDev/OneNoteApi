@@ -7,3 +7,6 @@ src/definitions
 target/modules
 target/tests
 *.user
+.idea
+/target
+/dist

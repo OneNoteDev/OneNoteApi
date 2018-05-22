@@ -1,6 +1,5 @@
-/// <reference path="../definitions/qunit/qunit.d.ts" />
-
 import {OneNotePage} from "../scripts/oneNotePage";
+import {QUnit, test, QUnitAssert, ok, equal} from "qunitjs";
 
 let title = "TITLE";
 let body = "BODY";

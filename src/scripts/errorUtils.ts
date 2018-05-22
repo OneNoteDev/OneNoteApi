@@ -1,5 +1,3 @@
-/// <reference path="oneNoteApi.ts"/>
-
 export enum RequestErrorType {
 	NETWORK_ERROR,
 	UNEXPECTED_RESPONSE_STATUS,
@@ -21,7 +19,7 @@ export interface RequestError extends GenericError {
 export class ErrorUtils {
 	public static createRequestErrorObject(request: XMLHttpRequest, errorType: RequestErrorType): RequestError {
 		if (!request) {
-			return;
+			return null;
 		}
 
 		return ErrorUtils.createRequestErrorObjectInternal(request.status, request.readyState, request.response, request.getAllResponseHeaders(), request.timeout, errorType);
@@ -59,7 +57,7 @@ export class ErrorUtils {
 
 	public static convertResponseHeadersToJson(request: XMLHttpRequest): { [key: string]: string } {
 		if (request === undefined || request === null) {
-			return;
+			return null;
 		}
 
 		let responseHeaders: string = request.getAllResponseHeaders();
