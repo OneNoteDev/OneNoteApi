@@ -233,7 +233,7 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 		let filter = (excludeReadOnlyNotebooks) ? "$filter=userRole%20ne%20Microsoft.OneNote.Api.UserRole'Reader'" : "";
 		let orderByStr = "";
 		if (orderByCondition) {
-			orderByStr = orderByCondition.direction ? `&$orderBy=${orderByCondition.parameter}%20${orderByCondition.direction}` : `&$orderBy=${orderByCondition.parameter}`;
+			orderByStr = orderByCondition.direction ? `&$orderby=${orderByCondition.parameter}%20${orderByCondition.direction}` : `&$orderBy=${orderByCondition.parameter}`;
 		}
 
 		return "/me/notes/notebooks?" + filter + orderByStr + (numExpands ? "&" + this.getExpands(numExpands) : "");
