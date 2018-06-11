@@ -15,5 +15,5 @@ export enum Direction {
 
 export class OrderBy {
 	public parameter: Parameter;
-	public direction?: Direction;
+	public direction: Direction;
 }
