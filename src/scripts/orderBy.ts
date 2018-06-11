@@ -3,14 +3,14 @@
  -------------------------------------------------------------------------*/
 
 export enum Parameter {
-	lastModifiedTime,
-	createdTime,
-	name
+	lastModifiedTime = "lastModifiedTime",
+	createdTime = "createdTime",
+	name = "name"
 }
 
 export enum Direction {
-	asc,
-	desc
+	asc = "asc",
+	desc = "desc"
 }
 
 export class OrderBy {
