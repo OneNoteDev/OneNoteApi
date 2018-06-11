@@ -2,6 +2,7 @@ import {ResponsePackage} from "./oneNoteApiBase";
 import {OneNotePage} from "./oneNotePage";
 import {BatchRequest} from "./batchRequest";
 import {Revision} from "./structuredTypes";
+import { OrderBy } from "./orderBy";
 
 export interface IOneNoteApi {
 	createNotebook(name: string): Promise<ResponsePackage<any>>;
@@ -14,7 +15,7 @@ export interface IOneNoteApi {
 	createSection(notebookId: string, name: string): Promise<ResponsePackage<any>>;
 	createSectionUnderSectionGroup(sectionGroupId: string, name: string): Promise<ResponsePackage<any>>;
 	getNotebooks(excludeReadOnlyNotebooks?: boolean): Promise<ResponsePackage<any>>;
-	getNotebooksWithExpandedSections(expands?: number, excludeReadOnlyNotebooks?: boolean): Promise<ResponsePackage<any>>;
+	getNotebooksWithExpandedSections(expands?: number, excludeReadOnlyNotebooks?: boolean, orderByCondition?: OrderBy): Promise<ResponsePackage<any>>;
 	getNotebookByName(name: string): Promise<ResponsePackage<any>>;
 	pagesSearch(query: string): Promise<ResponsePackage<any>>;
 }

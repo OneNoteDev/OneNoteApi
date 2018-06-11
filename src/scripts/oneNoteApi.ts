@@ -147,19 +147,19 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	/**
 	* GetNotebooksWithExpandedSections
 	*/
-	public getNotebooksWithExpandedSections(expands = 2, excludeReadOnlyNotebooks = true): Promise<ResponsePackage<any>> {
-		return this.requestPromise(this.getNotebooksUrl(expands, excludeReadOnlyNotebooks));
+	public getNotebooksWithExpandedSections(expands = 2, excludeReadOnlyNotebooks = true, orderByCondition = null): Promise<ResponsePackage<any>> {
+		return this.requestPromise(this.getNotebooksUrl(expands, excludeReadOnlyNotebooks, orderByCondition));
 	}
 
 	/**
-	* GetNotebooksWithExpandedSections
+	* GetNotebooksBySelfUrl
 	*/
 	public getNotebookBySelfUrl(selfUrl: string, expands = 2): Promise<ResponsePackage<any>> {
 		return this.requestPromise(selfUrl + "?" + this.getExpands(expands), null, null, null, true /* isFullUrl */);
 	}
 
 	/**
-	* GetNotebookbyName
+	* GetNotebookByName
 	*/
 	public getNotebookByName(name: string): Promise<ResponsePackage<any>> {
 		return this.requestPromise("/me/notes/notebooks?filter=name%20eq%20%27" + encodeURI(name) + "%27&orderby=createdTime");
@@ -225,12 +225,12 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	/**
 	* GetNotebooksUrl
 	*/
-	private getNotebooksUrl(numExpands = 0, excludeReadOnlyNotebooks = true): string {
+	private getNotebooksUrl(numExpands = 0, excludeReadOnlyNotebooks = true, orderByCondition = null): string {
 		// Since this url is most often used to save content to a specific notebook, by default
 		// it does not include a notebook where user has Read only permissions.
 		let filter = (excludeReadOnlyNotebooks) ? "$filter=userRole%20ne%20Microsoft.OneNote.Api.UserRole'Reader'" : "";
-
-		return "/me/notes/notebooks?" + filter + (numExpands ? "&" + this.getExpands(numExpands) : "");
+		let orderByStr = orderByCondition ? `&$orderby=${orderByCondition.parameter}%20${orderByCondition.direction}` : "";
+		return "/me/notes/notebooks?" + filter + orderByStr + (numExpands ? "&" + this.getExpands(numExpands) : "");
 	}
 
 	/**
