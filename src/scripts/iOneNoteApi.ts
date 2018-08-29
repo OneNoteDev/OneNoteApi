@@ -1,4 +1,4 @@
-import {ResponsePackage} from "./oneNoteApiBase";
+import {ResponsePackage, XHRData} from "./oneNoteApiBase";
 import {OneNotePage} from "./oneNotePage";
 import {BatchRequest} from "./batchRequest";
 import {Revision} from "./structuredTypes";
@@ -18,4 +18,5 @@ export interface IOneNoteApi {
 	getNotebooksWithExpandedSections(expands?: number, excludeReadOnlyNotebooks?: boolean, orderByCondition?: OrderBy): Promise<ResponsePackage<any>>;
 	getNotebookByName(name: string): Promise<ResponsePackage<any>>;
 	pagesSearch(query: string): Promise<ResponsePackage<any>>;
+	performApiCall(url: string, data?: XHRData, contentType?: string, httpMethod?: string, isFullUrl?: boolean, urlContainsVersion?: boolean): Promise<ResponsePackage<any>>;
 }
