@@ -16,7 +16,7 @@ From the root of this project, run:
 $ npm install
 ```
 
-### 4. Build and Test
+### 4. Build
 Now just run:
 ```sh
 $ npm run build
