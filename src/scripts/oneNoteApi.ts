@@ -67,6 +67,22 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	}
 
 	/**
+	* GetNotebookFromWebUrl
+	*/
+	public getNotebookFromWebUrl(notebookWebUrl: string): Promise<ResponsePackage<any>> {
+		let url = "/me/notes/notebooks/Microsoft.OneNote.Api.GetNotebookFromWebUrl()";
+		const payload = {
+			webUrl: notebookWebUrl
+		};
+
+		const oldUseBetaApi = this.useBetaApi;
+		this.useBetaApi = true; // This API is only supported in beta
+		const returnValue = this.requestPromise(url, JSON.stringify(payload));
+		this.useBetaApi = oldUseBetaApi;
+		return returnValue;
+	}
+
+	/**
 	 * SendBatchRequest
 	 **/
 	public sendBatchRequest(batchRequest: BatchRequest): Promise<ResponsePackage<any>> {
