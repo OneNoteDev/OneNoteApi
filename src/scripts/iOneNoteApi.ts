@@ -20,4 +20,5 @@ export interface IOneNoteApi {
 	pagesSearch(query: string): Promise<ResponsePackage<any>>;
 	performApiCall(url: string, data?: XHRData, contentType?: string, httpMethod?: string, isFullUrl?: boolean, urlContainsVersion?: boolean): Promise<ResponsePackage<any>>;
 	getNotebooksFromWebUrls(notebookWebUrls: string[]): Promise<ResponsePackage<any>>;
+	getNotebookFromWebUrl(notebookWebUrl: string): Promise<ResponsePackage<any>>;
 }
