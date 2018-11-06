@@ -75,10 +75,7 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 			webUrl: notebookWebUrl
 		};
 
-		const oldUseBetaApi = this.useBetaApi;
-		this.useBetaApi = true; // This API is only supported in beta
 		const returnValue = this.requestPromise(url, JSON.stringify(payload));
-		this.useBetaApi = oldUseBetaApi;
 		return returnValue;
 	}
 
