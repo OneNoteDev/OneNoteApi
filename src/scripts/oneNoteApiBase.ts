@@ -40,7 +40,7 @@ export class OneNoteApiBase {
 		}
 
 		// Append specified query params
-		fullUrl = this.appendQueryParams(url);
+		fullUrl = this.appendQueryParams(fullUrl);
 
 		if (!contentType) {
 			contentType = "application/json";
