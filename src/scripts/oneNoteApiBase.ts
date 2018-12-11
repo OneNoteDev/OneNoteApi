@@ -39,6 +39,9 @@ export class OneNoteApiBase {
 			fullUrl = this.generateFullUrl(url, urlContainsVersion);
 		}
 
+		// Append specified query params
+		fullUrl = this.appendQueryParams(url);
+
 		if (!contentType) {
 			contentType = "application/json";
 		}
@@ -90,10 +93,6 @@ export class OneNoteApiBase {
 
 	public generateFullUrl(partialUrl: string, urlContainsVersion?: boolean): string {
 		return this.generateUrlUntilVersion(urlContainsVersion) + partialUrl;
-	}
-
-	public generateFullMeNotesUrl(partialUrl: string, urlContainsVersion?: boolean): string {
-		return this.generateUrlUntilVersion(urlContainsVersion) + "/me/notes" + partialUrl;
 	}
 
 	private makeRequest(url: string, data?: XHRData, contentType?: string, httpMethod?: string): Promise<ResponsePackage<any>> {
