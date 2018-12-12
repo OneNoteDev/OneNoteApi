@@ -44,10 +44,10 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	/**
 	* GetWopiProperties
 	*/
-	public getNotebookWopiProperties(notebookSelfPath: string, frameAction: string): Promise<ResponsePackage<any>> {
+	public getNotebookWopiProperties(notebookSelfPath: string, frameAction: string, queryParams?: { [key: string]: string }): Promise<ResponsePackage<any>> {
 		let url = notebookSelfPath + "/Microsoft.OneNote.Api.GetWopiProperties(frameAction='" + frameAction + "')";
 
-		return this.requestPromise(url, null, null, null, null, true /* URL contains version */);
+		return this.requestPromise(url, null, null, null, null, true /* URL contains version */, queryParams /* query params */);
 	}
 
 	/**
@@ -195,8 +195,8 @@ export class OneNoteApi extends OneNoteApiBase implements IOneNoteApi {
 	/**
 	* Method that can be used to send any HTTP request
 	*/
-	public performApiCall(url: string, data?: XHRData, contentType?: string, httpMethod?: string, isFullUrl?: boolean, urlContainsVersion?: boolean): Promise<ResponsePackage<any>> {
-		return this.requestPromise(url, data, contentType, httpMethod, isFullUrl, urlContainsVersion);
+	public performApiCall(url: string, data?: XHRData, contentType?: string, httpMethod?: string, isFullUrl?: boolean, urlContainsVersion?: boolean, queryParams?: { [key: string]: string }): Promise<ResponsePackage<any>> {
+		return this.requestPromise(url, data, contentType, httpMethod, isFullUrl, urlContainsVersion, queryParams);
 	}
 
 	/**
