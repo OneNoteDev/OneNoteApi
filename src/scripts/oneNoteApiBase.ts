@@ -31,7 +31,7 @@ export class OneNoteApiBase {
 		this.queryParams = queryParams;
 	}
 
-	protected requestPromise(url: string, data?: XHRData, contentType?: string, httpMethod?: string, isFullUrl?: boolean, urlContainsVersion?: boolean): Promise<ResponsePackage<any>> {
+	protected requestPromise(url: string, data?: XHRData, contentType?: string, httpMethod?: string, isFullUrl?: boolean, urlContainsVersion?: boolean, extraQueryParams?: { [key: string]: string }): Promise<ResponsePackage<any>> {
 		let fullUrl;
 		if (isFullUrl) {
 			fullUrl = url;
@@ -40,7 +40,7 @@ export class OneNoteApiBase {
 		}
 
 		// Append specified query params
-		fullUrl = this.appendQueryParams(fullUrl);
+		fullUrl = this.appendQueryParams(fullUrl, extraQueryParams);
 
 		if (!contentType) {
 			contentType = "application/json";
@@ -55,19 +55,32 @@ export class OneNoteApiBase {
 		}));
 	}
 
-	private appendQueryParams(url: string): string {
-		let queryParams = this.queryParams;
-		if (!queryParams) {
+	private appendQueryParams(url: string, extraQueryParams?: { [key: string]: string }): string {
+		// Merge both constructor query params and parameter query params
+		const newQueryParams = {};
+		if (this.queryParams) {
+			for (const key in this.queryParams) {
+				newQueryParams[key] = this.queryParams[key];
+			}
+		}
+		if (extraQueryParams) {
+			for (const key in extraQueryParams) {
+				newQueryParams[key] = extraQueryParams[key];
+			}
+		}
+
+		if (!newQueryParams || Object.keys(newQueryParams).length === 0) {
 			return url;
 		}
 
 		let queryParamArray = [];
-		for (const key in queryParams) {
-			if (queryParams.hasOwnProperty(key)) {
-				const queryParamValue = encodeURIComponent(queryParams[key]);
+		for (const key in newQueryParams) {
+			if (newQueryParams.hasOwnProperty(key)) {
+				const queryParamValue = encodeURIComponent(newQueryParams[key]);
 				queryParamArray.push(key + "=" + queryParamValue);
 			}
 		}
+
 		const serializedQueryParams = queryParamArray.join("&");
 		if (url.indexOf("?") === -1) {
 			return url + "?" + serializedQueryParams;
